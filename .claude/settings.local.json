@@ -23,7 +23,11 @@
       "Bash(git commit:*)",
       "Bash(git branch:*)",
       "Bash(git checkout:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(gh --version:*)",
+      "Bash(winget install:*)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" auth login --web --git-protocol https)"
     ],
     "deny": [],
     "ask": []
