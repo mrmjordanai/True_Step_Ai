@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'base_service.dart';
@@ -114,12 +115,29 @@ class PermissionService extends BaseService {
     return status.isGranted;
   }
 
+  /// Check if notification permission is granted
+  Future<bool> hasNotificationPermission() async {
+    return await Permission.notification.isGranted;
+  }
+
+  /// Request notification permission
+  Future<bool> requestNotificationPermission() async {
+    final status = await Permission.notification.request();
+    return status.isGranted;
+  }
+
+  /// Check if notification permission is permanently denied
+  Future<bool> isNotificationPermissionPermanentlyDenied() async {
+    return await Permission.notification.isPermanentlyDenied;
+  }
+
   /// Request all permissions needed for full app functionality
   Future<Map<Permission, PermissionStatus>> requestAllPermissions() async {
     return await [
       Permission.camera,
       Permission.microphone,
       Permission.speech,
+      Permission.notification,
     ].request();
   }
 }
@@ -165,3 +183,9 @@ class SessionPermissionStatus {
     return 'Please grant ${denied.join(' and ')} permission';
   }
 }
+
+/// Provider for PermissionService
+/// Can be overridden in tests with a mock
+final permissionServiceProvider = Provider<PermissionService>((ref) {
+  return PermissionService();
+});

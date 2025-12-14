@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -64,5 +61,15 @@ class DefaultFirebaseOptions {
     projectId: 'truestep-prod',
     storageBucket: 'truestep-prod.firebasestorage.app',
     iosBundleId: 'com.truestep.truestep',
+  );
+
+  // Web configuration - update appId after creating web app in Firebase Console
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCXUpvxKhk_1ZcqeEGSjB_w2SyLHA1o_58',
+    appId: '1:329838161268:web:placeholder',
+    messagingSenderId: '329838161268',
+    projectId: 'truestep-prod',
+    authDomain: 'truestep-prod.firebaseapp.com',
+    storageBucket: 'truestep-prod.firebasestorage.app',
   );
 }

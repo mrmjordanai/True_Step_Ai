@@ -27,7 +27,10 @@
       "Bash(git push:*)",
       "Bash(gh --version:*)",
       "Bash(winget install:*)",
-      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" auth login --web --git-protocol https)"
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" auth login --web --git-protocol https)",
+      "Bash(mkdir -p:*)",
+      "Bash(flutter devices:*)",
+      "Bash(flutterfire:*)"
     ],
     "deny": [],
     "ask": []

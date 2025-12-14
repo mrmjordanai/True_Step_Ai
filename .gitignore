@@ -68,3 +68,6 @@ ios/Podfile.lock
 # Code coverage
 coverage/
 *.lcov
+
+# Scripts
+scripts/

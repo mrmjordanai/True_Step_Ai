@@ -4,6 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../core/constants/colors.dart';
 import '../core/constants/typography.dart';
+import '../features/onboarding/screens/welcome_screen.dart';
+import '../features/onboarding/screens/permissions_screen.dart';
+import '../features/onboarding/screens/account_screen.dart';
+import '../features/onboarding/screens/first_task_screen.dart';
+import '../features/home/screens/home_screen.dart';
+import '../features/search/screens/search_screen.dart';
+import '../shared/widgets/bottom_nav_bar.dart';
 
 // ============================================
 // ROUTE PATHS
@@ -72,49 +79,126 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.home,
     debugLogDiagnostics: true,
     routes: [
-      // ========== HOME ==========
-      GoRoute(
-        path: AppRoutes.home,
-        name: 'home',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'TrueStep',
-          subtitle: 'The Briefing',
-        ),
+      // ========== MAIN NAVIGATION SHELL ==========
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainNavigationShell(navigationShell: navigationShell);
+        },
+        branches: [
+          // Home (index 0)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                name: 'home',
+                builder: (context, state) => HomeScreen(
+                  onNotificationTap: () {
+                    // TODO: Navigate to notifications
+                  },
+                  onOmniBarTap: () {
+                    // TODO: Open omni-bar input
+                  },
+                  onQuickAction: (action) {
+                    // TODO: Handle quick actions
+                  },
+                ),
+              ),
+            ],
+          ),
+          // Search (index 1)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.search,
+                name: 'search',
+                builder: (context, state) => SearchScreen(
+                  onVoiceTap: () {
+                    // TODO: Activate voice search
+                  },
+                  onSearch: (query) {
+                    // TODO: Perform search
+                  },
+                  onCategorySelected: (category) {
+                    // TODO: Filter by category
+                  },
+                  onGuideTap: (guideId) {
+                    context.go(AppRoutes.sessionPreviewPath(guideId));
+                  },
+                ),
+              ),
+            ],
+          ),
+          // Community (index 2)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.community,
+                name: 'community',
+                builder: (context, state) => const _PlaceholderScreen(
+                  title: 'Community',
+                  subtitle: 'Shared sessions',
+                ),
+              ),
+            ],
+          ),
+          // History (index 3)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.history,
+                name: 'history',
+                builder: (context, state) => const _PlaceholderScreen(
+                  title: 'History',
+                  subtitle: 'Past sessions',
+                ),
+              ),
+            ],
+          ),
+          // Profile (index 4)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                name: 'profile',
+                builder: (context, state) => const _PlaceholderScreen(
+                  title: 'Profile',
+                  subtitle: 'Your account',
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
 
       // ========== ONBOARDING ==========
       GoRoute(
         path: AppRoutes.welcome,
         name: 'welcome',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'Welcome',
-          subtitle: 'Onboarding',
+        builder: (context, state) => WelcomeScreen(
+          onGetStarted: () => context.go(AppRoutes.permissions),
+          onSignIn: () => context.go(AppRoutes.accountSetup),
         ),
       ),
       GoRoute(
         path: AppRoutes.permissions,
         name: 'permissions',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'Permissions',
-          subtitle: 'Camera & Microphone',
+        builder: (context, state) => PermissionsScreen(
+          onContinue: () => context.go(AppRoutes.accountSetup),
+          onSkip: () => context.go(AppRoutes.accountSetup),
         ),
       ),
       GoRoute(
         path: AppRoutes.accountSetup,
         name: 'accountSetup',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'Account Setup',
-          subtitle: 'Create your account',
+        builder: (context, state) => AccountScreen(
+          onContinue: () => context.go(AppRoutes.firstTask),
         ),
       ),
-
-      // ========== SEARCH ==========
       GoRoute(
-        path: AppRoutes.search,
-        name: 'search',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'Search',
-          subtitle: 'Find guides',
+        path: AppRoutes.firstTask,
+        name: 'firstTask',
+        builder: (context, state) => FirstTaskScreen(
+          onComplete: () => context.go(AppRoutes.home),
         ),
       ),
 
@@ -163,15 +247,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      // ========== COMMUNITY ==========
-      GoRoute(
-        path: AppRoutes.community,
-        name: 'community',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'Community',
-          subtitle: 'Shared sessions',
-        ),
-      ),
+      // ========== COMMUNITY SUB-ROUTES ==========
       GoRoute(
         path: AppRoutes.communityVideo,
         name: 'communityVideo',
@@ -195,15 +271,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // ========== HISTORY ==========
-      GoRoute(
-        path: AppRoutes.history,
-        name: 'history',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'History',
-          subtitle: 'Past sessions',
-        ),
-      ),
+      // ========== HISTORY SUB-ROUTES ==========
       GoRoute(
         path: AppRoutes.historyDetail,
         name: 'historyDetail',
@@ -345,6 +413,41 @@ class _PlaceholderScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ============================================
+// MAIN NAVIGATION SHELL
+// ============================================
+
+/// Shell widget that wraps main screens with bottom navigation
+class MainNavigationShell extends StatelessWidget {
+  const MainNavigationShell({
+    super.key,
+    required this.navigationShell,
+  });
+
+  final StatefulNavigationShell navigationShell;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: navigationShell,
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: navigationShell.currentIndex,
+        onTap: (index) {
+          // Navigate to the corresponding branch
+          navigationShell.goBranch(
+            index,
+            initialLocation: index == navigationShell.currentIndex,
+          );
+        },
+        onQuickActionTap: () {
+          // TODO: Show quick action modal/overlay
+        },
+        notificationCount: 0, // TODO: Get from provider
       ),
     );
   }

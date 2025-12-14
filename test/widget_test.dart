@@ -11,9 +11,9 @@ void main() {
         child: TrueStepApp(),
       ),
     );
+    await tester.pumpAndSettle();
 
-    // Verify that our app shows the home screen
-    expect(find.text('TrueStep'), findsOneWidget);
-    expect(find.text('The Briefing'), findsOneWidget);
+    // Verify that our app shows the home screen with greeting
+    expect(find.text('Hello there!'), findsOneWidget);
   });
 }

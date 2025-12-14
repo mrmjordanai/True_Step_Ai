@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'base_service.dart';
 
@@ -128,3 +129,9 @@ class AuthService extends BaseService {
     }
   }
 }
+
+/// Provider for AuthService
+/// Can be overridden in tests with a mock
+final authServiceProvider = Provider<AuthService>((ref) {
+  return AuthService();
+});
