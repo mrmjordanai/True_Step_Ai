@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "329838161268",
+    "project_id": "truestep-prod",
+    "storage_bucket": "truestep-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329838161268:android:1677916f62ee37b3a91021",
+        "android_client_info": {
+          "package_name": "com.truestep.truestep"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXUpvxKhk_1ZcqeEGSjB_w2SyLHA1o_58"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

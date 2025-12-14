@@ -1,0 +1,365 @@
+
+---
+
+# TrueStep UI/UX Design Specification
+**Version:** 3.0 (Consolidated & Enhanced)  
+**Philosophy:** "The Glass Sentinel"  
+**Platform:** Flutter (iOS, Android)  
+**Total Screens:** 34  
+
+---
+
+## Table of Contents
+
+1. [Design Philosophy & Global DNA](#1-design-philosophy--global-visual-dna)
+2. [Design System](#2-design-system)
+3. [Onboarding Flow](#3-onboarding-flow-4-screens)
+4. [Home & Navigation](#4-home--navigation-3-screens)
+5. [Guide Discovery](#5-guide-discovery-3-screens)
+6. [Session Flow (The Core)](#6-session-flow-7-screens)
+7. [Community](#7-community-4-screens)
+8. [Session History](#8-session-history-2-screens)
+9. [Mistake Insurance Claim](#9-mistake-insurance-claim-flow-5-screens)
+10. [Settings & Account](#10-settings--account-2-screens)
+11. [Paywall & Subscription](#11-paywall--subscription-2-screens)
+12. [Error & Edge States](#12-error--edge-states-4-screens)
+13. [Implementation Notes](#13-flutter-implementation-notes)
+
+---
+
+## 1. Design Philosophy & Global Visual DNA
+
+### Core Concept: "Operational Luminosity"
+The UI is not just a flat interface; it is a "living" layer of glass over the physical world. Light, blur, and color communicate system status intuitively, minimizing the need for reading text while working with hands.
+
+### Visual Constants
+*   **The Spotlight Background:** Not solid black. A deep radial gradient (`#0A0A0A` to `#1A1A2E`) centered behind the primary focal point, creating a "spotlight" effect.
+*   **The Glass Surface:**
+    *   **Fill:** `LinearGradient` (Top-Left White 10% → Bottom-Right White 2%).
+    *   **Border:** `LinearGradient` (Top White 20% → Bottom Transparent).
+    *   **Texture:** A Micro-noise overlay (1% opacity) to prevent banding and add tactile realism.
+*   **Back-Glow:** Glow effects are not shadows; they are colored `BoxShadows` with `blurRadius: 30` placed *behind* the glass, making the interface appear to conduct light.
+*   **Traffic Light Language:**
+    *   🟢 **Green (Sentinel):** Safe, Watching, Vignette Glow.
+    *   🟡 **Yellow (Analysis):** Thinking, Scanning, Waveform.
+    *   🔴 **Red (Intervention):** Danger, Stop, Chromatic Aberration.
+
+---
+
+## 2. Design System
+
+### 2.1 Color Palette
+
+| Token | Hex | Usage |
+|-------|-----|-------|
+| `--bg-primary` | `#0A0A0A` | Deep Void |
+| `--bg-gradient-start` | `#0A0A0A` | Radial Center |
+| `--bg-gradient-end` | `#1A1A2E` | Radial Edge |
+| `--glass-fill` | `rgba(255,255,255,0.08)` | Standard Surface |
+| `--glass-slot` | `rgba(255,255,255,0.05)` | Input Fields (Recessed) |
+| `--sentinel-green` | `#00E676` | Watching / Verified |
+| `--analysis-yellow` | `#FFC400` | Processing / Latency |
+| `--intervention-red` | `#FF3D00` | Error / Danger |
+| `--neon-blue` | `#2979FF` | Primary Action / Focus |
+
+### 2.2 Component Textures
+
+*   **Buttons:** Glass pills that depress (scale 0.98) on touch.
+*   **Input Fields:** "Glass Slots" with inner shadow (top-left) to look recessed/engraved.
+*   **Cards:** Frosted glass with 16px blur and 1px gradient stroke.
+
+---
+
+## 3. Onboarding Flow (4 Screens)
+
+### Screen 3.1: Welcome Carousel (The Awakening)
+**Purpose:** Introduce value proposition with immersive depth.
+**Ratio:** 40% Hero (Top), 40% Text, 20% Actions.
+*   **Visuals:** Background is a slow-moving "Aurora Borealis" mesh gradient. Hero images are 3D-rendered glass objects floating in space.
+*   **Animation:** **Parallax Eye.** As the user swipes between cards, the "Eye" in the illustration tracks the finger position.
+*   **Pagination:** Neon pills, not dots. Active dot glows.
+
+### Screen 3.2: Permission Requests (The Handshake)
+**Purpose:** Request system access contextually.
+**Ratio:** Center focus (100%).
+*   **Visuals:** Single column layout. When Camera is requested, the background shows a blurred, desaturated live camera feed (if possible) or a static lens refraction effect.
+*   **Animation:** **The Shutter.** Tapping "Allow Camera" triggers an iris-opening animation. The icon fills with `--sentinel-green` glow upon success.
+
+### Screen 3.3: Account Creation (The Gate)
+**Purpose:** Sign up or anonymous entry.
+**Ratio:** 80% Center Card, 20% Bottom Actions.
+*   **Visuals:** Input fields are "Glass Slots" (recessed). "Guest" option is a ghost button, barely visible.
+*   **Animation:** **Focus Glow.** Tapping a field makes the border glow `--neon-blue`; placeholder text floats up smoothly.
+
+### Screen 3.4: First Task Suggestion (The Spark)
+**Purpose:** Immediate value discovery.
+**Ratio:** 20% Header, 80% Grid.
+*   **Visuals:** 2x2 Grid of cards with large 3D emojis. Each card has a subtle gradient mesh (Orange for cooking, Blue for repair).
+*   **Animation:** **Gyro Parallax.** Tilting the phone moves the emoji inside the card slightly faster than the background, creating a window effect.
+
+---
+
+## 4. Home & Navigation (3 Screens)
+
+### Screen 4.1: Home - The Briefing (Command Center)
+**Purpose:** Primary entry point.
+**Ratio:** 15% Header, 15% Omni-Bar, 60% Scroll, 10% Nav.
+*   **The Omni-Bar:** A glass pill floating 24px below the header. It has a faint, pulsing inner glow (The "Brain" waiting for input).
+*   **Nav Bar:** Not a full strip. A floating glass pill at the bottom center.
+*   **Animation:** Header blurs (`ImageSigma`) as content scrolls behind it. Omni-Bar expands heroically on tap.
+
+### Screen 4.2: Search / Omni-Bar Expanded
+**Purpose:** Search and AI conversation.
+**Ratio:** 10% Input, 90% Results.
+*   **Visuals:** Background dims to 95% opacity black. Suggestions appear in a masonry grid to break monotony.
+*   **Animation:** **Thinking Pulse.** As the user types, the "Brain" icon in the bar pulses faster. Suggestions cascade in with a 50ms stagger.
+
+### Screen 4.3: Profile & Quick Settings (The Identity)
+**Purpose:** User stats and quick access.
+**Ratio:** Bottom Sheet (85% height).
+*   **Visuals:** Heavy blur (40px) obscures the home screen. Avatar is surrounded by a "Reputation Ring" that glows based on level (Bronze/Silver/Gold).
+*   **Layout:** Stats are in a "Trophy Case" horizontal scroll.
+
+---
+
+## 5. Guide Discovery (3 Screens)
+
+### Screen 5.1: Search Results (The Catalog)
+**Purpose:** Browsing guides.
+**Ratio:** 15% Filters (Horizontal), 85% List.
+*   **Visuals:** Filter chips are glass pills (Active = Neon Blue glow). List items are "Horizontal Cards" with thumbnails masked by a gradient.
+*   **Animation:** **Cascade Load.** Cards slide in from the bottom with distinct delays.
+
+### Screen 5.2: Guide Preview (The Dossier)
+**Purpose:** Pre-session details.
+**Ratio:** 45% Hero Media, 55% Info Sheet.
+*   **Visuals:** The Info Sheet overlaps the Hero Media by -24px with a rounded top. Stats are in "Micro-glass" pills.
+*   **Sticky CTA:** The "Start Session" button floats at the bottom.
+*   **Animation:** **Attract Loop.** The "Start Session" button has a "shimmer" effect (diagonal white sheen) repeating every 3 seconds.
+
+### Screen 5.3: Tool Inventory (The Armory)
+**Purpose:** User tool management.
+**Ratio:** 3 Column Grid.
+*   **Visuals:** Tools look like trading cards.
+    *   *Owned:* Opaque, slight inner glow.
+    *   *Missing:* 30% opacity, grayscale, dashed border.
+*   **Animation:** **The Stamp.** Tapping a tool scales it down, then snaps it back up with a green checkmark overlay and haptic thud.
+
+---
+
+## 6. Session Flow (The Core Experience)
+
+### Screen 6.1: Session Start / Ingestion (The Analysis)
+**Purpose:** Analyzing the input/device.
+**Ratio:** Full Screen.
+*   **Visuals:** Central "Scanner" reticle. A **3D Wireframe Mesh** overlays the camera feed, contouring over objects to imply geometry understanding.
+*   **Animation:** **Digitization.** Captured images break into particles that fly into the "Brain" icon.
+
+### Screen 6.2: Calibration (The Scale)
+**Purpose:** Establishing measurement scale.
+**Ratio:** Full Screen + Overlay.
+*   **Visuals:** A dashed circle rotates slowly in the center (like a camera aperture).
+*   **Animation:** **The Clamp.** When the coin is detected, the dashed circle snaps to a solid `--sentinel-green` ring and physically "clamps" down (scales) to match the coin size.
+
+### Screen 6.3: Tool Audit (The Stage)
+**Purpose:** AR Tool verification.
+**Ratio:** Full Screen Feed, 25% Right-side Checklist.
+*   **Visuals:** Checklist is a blurred glass strip on the right. AR Bounding Boxes are **Neon Dashed Lines** with corner brackets.
+*   **Animation:** **Lock & Beam.** When a tool is found, the box turns green, and a "light beam" particle effect shoots from the box to the checklist item.
+
+### Screen 6.4: Active Session - Green (The Sentinel)
+**Purpose:** Passive monitoring.
+**Ratio:** 10% Top Bar, 70% Viewport, 20% Instruction Deck.
+*   **Visuals:**
+    *   **Vignette:** Subtle `--sentinel-green` glow at screen edges.
+    *   **Top Bar:** Contains "The Eye" (Lottie) which blinks naturally.
+*   **Animation:** **Eye Tracking.** The Eye icon tracks the movement of the user's hands (using coordinate data from the vision model).
+
+### Screen 6.5: Active Session - Yellow (The Verifier)
+**Purpose:** Active analysis/Thinking.
+**Visual Shift:** Vignette morphs to **Amber/Yellow**.
+*   **Visuals:** A "Scanning Line" (horizontal laser) sweeps up and down the viewport.
+*   **Animation:** **Waveform.** The Eye icon morphs into a frequency waveform. Subtle yellow particles float up from the instruction card (data upload).
+
+### Screen 6.6: Active Session - Red (The Intervention)
+**Purpose:** Critical Stop.
+**Visual Shift:** Aggressive **Red** pulse.
+*   **Visuals:**
+    *   **Texture:** Modal has a "Cracked Glass" or sharp angular border.
+    *   **Feed:** Camera feed dimmed 70%.
+*   **Animation:** **Impact.** Screen flashes white (1 frame) then snaps red. "Stop Hand" icon scales up with a bounce/overshoot. Heavy haptic vibration.
+
+### Screen 6.7: Session Completion (The Victory)
+**Purpose:** Success summary.
+**Ratio:** Center-weighted.
+*   **Visuals:** Stats summary is a "Holofoil" card (rainbow sheen).
+*   **Animation:**
+    *   **Light Particles:** Glowing dots rain down (Confetti).
+    *   **Slot Machine:** Time and step counters roll up (00:00 → 47:23).
+
+---
+
+## 7. Community (4 Screens)
+
+### Screen 7.1: Community Feed
+**Purpose:** Browse shared sessions.
+**Ratio:** Full Screen Content.
+*   **Visuals:** Gradient scrim at bottom for text. Avatars have "Maker Level" neon rings.
+*   **Animation:** **Double Tap.** Spawns a "Wrench" or "Chef Hat" icon pop-up animation instead of a generic heart.
+
+### Screen 7.2: Video Player (The Theater)
+**Purpose:** Playback.
+**Ratio:** Full Screen.
+*   **Visuals:** Timeline is a **Heatmap** showing where AI intervened (Red dots on timeline). Step markers are glass diamonds.
+*   **Animation:** **Magnetic Scrub.** Scrubbing snaps haptically to step markers.
+
+### Screen 7.3 & 7.4: Creator Profiles
+**Purpose:** User portfolio.
+**Ratio:** 30% Header (Blurred Video Cover), 70% Content.
+*   **Visuals:** Badges are hexagonal glass icons with metallic borders.
+*   **Tabs:** Stick to the top of the scroll view.
+
+---
+
+## 8. Session History (2 Screens)
+
+### Screen 8.1: Session History List (The Logbook)
+**Purpose:** List of past repairs.
+**Ratio:** List View.
+*   **Visuals:** A timeline connector line runs down the left.
+    *   *Active:* Glowing Green dot.
+    *   *Expired:* **Frosted Over** (High white opacity), requiring a "wipe" gesture to view metadata.
+
+### Screen 8.2: Session Detail
+**Purpose:** Specific session data.
+**Ratio:** Standard Scroll.
+*   **Visuals:** Step breakdown uses accordion style. Verification clips have a film-strip border.
+
+---
+
+## 9. Mistake Insurance Claim Flow (5 Screens)
+
+### Screen 9.1: Claim Initiation
+**Purpose:** Start claim.
+**Visual Tone:** Serious, Legal, Empathetic.
+*   **Visuals:** Background darker (`#050505`). Cards have a **"Paper" texture** (slight grain) mixed with glass to differentiate from the "fun" app.
+
+### Screen 9.2: Damage Documentation
+**Purpose:** Photo evidence.
+**Ratio:** 50% Viewfinder, 50% Grid.
+*   **Visuals:** Viewfinder has a **"Security Grid"** overlay (fine mesh) to imply forensic accuracy. Header has a Gold Shield icon.
+*   **Animation:** **Fly-in.** Captured photos flash and physically fly into the grid slots.
+
+### Screen 9.3: Issue Description
+**Purpose:** Text input.
+**Visuals:** Large text area is a recessed "Glass Slot".
+
+### Screen 9.4: Review
+**Purpose:** Confirmation.
+**Visuals:** Summary card looks like a formal dossier.
+
+### Screen 9.5: Tracking
+**Purpose:** Status.
+**Visuals:** Vertical stepper. Completed steps are solid Green; current step pulses.
+*   **Animation:** **Send.** On submission, the card "folds" (metaphorically) and flies up.
+
+---
+
+## 10. Settings & Account (2 Screens)
+
+### Screen 10.1: Settings Main (Control Panel)
+**Purpose:** Configuration.
+**Visuals:** Grouped sections in rounded glass containers.
+*   **Components:** **Neon Toggles.**
+    *   *OFF:* Grey track, empty thumb.
+    *   *ON:* `--sentinel-green` track, glowing thumb.
+*   **Animation:** Toggles slide smoothly and light up the label text.
+
+### Screen 10.2: Manage My Data
+**Purpose:** Privacy/GDPR.
+**Visuals:** "Delete" buttons use a red-tinted glass style.
+
+---
+
+## 11. Paywall & Subscription (2 Screens)
+
+### Screen 11.1: Upgrade Prompt (The Vault)
+**Purpose:** Conversion.
+**Ratio:** 40% Hero, 60% Plans.
+*   **Visuals:** "Pro" card is center and larger.
+    *   **Holographic Shader:** The Pro card has a rainbow sheen that shifts when the phone is tilted.
+*   **Animation:** **Unlock.** Tapping subscribe triggers a "Padlock Dissolving" particle animation.
+
+### Screen 11.2: Subscription Management
+**Purpose:** Admin.
+**Visuals:** Payment method visualized as a glassmorphic credit card.
+
+---
+
+## 12. Error & Edge States (4 Screens)
+
+### Screen 12.1: Offline Mode
+**Purpose:** No internet.
+**Visuals:** **The Freeze.** The entire UI turns grayscale. The glass becomes opaque/foggy (like a frosted window in winter).
+*   **Animation:** Text "No Connection" flickers like a failing neon sign.
+
+### Screen 12.2: API/Service Error (The Glitch)
+**Purpose:** Backend failure.
+**Visuals:** **Chromatic Aberration.** An RGB-split effect is applied to the UI to visually represent system failure. Theme is Warning Yellow.
+
+### Screen 12.3: Permission Denied Recovery
+**Purpose:** Fix settings.
+**Layout:** Split screen (Instruction / Button).
+*   **Animation:** A looping UI animation showing exactly where to tap in the OS settings.
+
+### Screen 12.4: Session Recovery (The Save Point)
+**Purpose:** Crash recovery.
+**Visuals:** Shows a snapshot of the last verified frame with a "Pause" overlay.
+*   **Animation:** **Zoom In.** The snapshot zooms in to fill the screen, transitioning seamlessly back to the live camera feed.
+
+---
+
+## 13. Flutter Implementation Notes
+
+To achieve the "Glass Sentinel" look in Flutter:
+
+1.  **Glassmorphism:**
+    ```dart
+    ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.08),
+            border: Border.all(color: Colors.white.withOpacity(0.12)),
+            // Add noise texture image here as a DecorationImage with low opacity
+          ),
+          child: child,
+        ),
+      ),
+    )
+    ```
+
+2.  **Back-Glow:**
+    Use a `Container` *behind* the Glass Widget with a colored `BoxShadow` and no child/color.
+    ```dart
+    BoxShadow(
+      color: sentinelGreen,
+      blurRadius: 30,
+      spreadRadius: -5,
+    )
+    ```
+
+3.  **Gradients:**
+    Avoid `Colors.black`. Use:
+    ```dart
+    RadialGradient(
+      center: Alignment.center,
+      radius: 1.5,
+      colors: [Color(0xFF1A1A2E), Color(0xFF0A0A0A)],
+    )
+    ```
+
+4.  **Neon Toggles & Lines:**
+    Use `Paint` with a `maskFilter: MaskFilter.blur(BlurStyle.normal, 4)` to create the glowing line effect for AR boxes and active UI elements.

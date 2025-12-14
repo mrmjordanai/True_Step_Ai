@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(flutter create:*)",
+      "Bash(where:*)",
+      "Bash(cmd /c \"where flutter\")",
+      "Bash(cmd /c \"flutter --version\")",
+      "Bash(powershell -Command \"flutter --version\")",
+      "Bash(powershell:*)",
+      "Bash(flutter test:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(dart run build_runner build:*)",
+      "Bash(flutter run:*)",
+      "Bash(flutter pub get:*)",
+      "Bash(dart pub global:*)",
+      "Bash(npm install:*)",
+      "Bash(firebase --version:*)",
+      "Bash(cat:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

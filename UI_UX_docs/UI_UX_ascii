@@ -1,0 +1,275 @@
+Here are the ASCII layouts for the **TrueStep "Glass Sentinel" Interface**.
+
+**Legend:**
+*   `+---+, |` : Solid borders / Screen edges
+*   `......` : Glass/Frosted surface
+*   `[ ]` : Button or Input Field
+*   `( )` : Circular Element / Avatar / Icon
+*   `~` : Waveform or Animation
+*   `*` : Glow or Highlight
+*   `#` : Image or Video content
+
+---
+
+## 3. Onboarding Flow
+
+```text
+3.1 Welcome Carousel           3.2 Permission Requests        3.3 Account Creation           3.4 First Task Suggestion
++----------------------+       +----------------------+       +----------------------+       +----------------------+
+|  (   Parallax   )    |       |                      |       |                      |       |      ( Hello )       |
+|  (    Mascot    )    |       |                      |       |                      |       | What to do first?    |
+|  (   Graphic    )    |       |      ( LENS )        |       |    Create Account    |       +----------------------+
+|                      |       |   [ Shutter Icon ]   |       |                      |       | [COOK]      [FIX ]   |
+| .................... |       |                      |       | [Email Slot........] |       |  🍳          🔧      |
+| . Value Prop Text  . |       |                      |       |                      |       |                      |
+| .                  . |       |     Camera Access    |       | [Pass Slot.........] |       | [SCAN]      [LOOK]   |
+| .                  . |       |    We need to see    |       |                      |       |  📷          👀      |
+| .                  . |       |    to guide you.     |       | [ Sign In Button   ] |       |                      |
+| .   (o) ( ) ( )    . |       |                      |       |                      |       +----------------------+
+| .                  . |       | [ ALLOW CAMERA ]     |       | - or social login -  |       |                      |
+| . [ GET STARTED ]  . |       |                      |       | (G)  (A)  (Fb)       |       |                      |
+| .................... |       |      (Not Now)       |       |      (Guest)         |       | (Change later)       |
++----------------------+       +----------------------+       +----------------------+       +----------------------+
+```
+
+## 4. Home & Navigation
+
+```text
+4.1 Home (The Briefing)        4.2 Omni-Bar Expanded          4.3 Profile (Sheet)
++----------------------+       +----------------------+       +----------------------+
+| (Av)  Hello User (N) |       | [ <  Search......mic]|       | (Blurred Home BG)    |
+|                      |       |                      |       |                      |
+|    [ ............ ]  |       | [All] [Fix] [Cook]   |       | .................... |
+|    [ : Omni-Bar : ]  |       |                      |       | .(   AVATAR (Au)  ). |
+|    [ ............ ]  |       | Recent:              |       | . User Name        . |
+|                      |       | (L) iPhone 15 batt   |       | . [Pro Member]     . |
+| Continue Session:    |       | (L) Sourdough        |       | .................... |
+| +------------------+ |       |                      |       | . Stats:           . |
+| | [##] MacBook Bat | |       | Suggestions:         |       | . [24]  [4.8*] [3] . |
+| | Step 12... [ > ] | |       | +-------+ +-------+  |       | .................... |
+| +------------------+ |       | | 🔧    | | 🍳    |  |       | . [My Sessions >]  . |
+|                      |       | | Screen| | Pasta |  |       | . [Settings    >]  . |
+| Community Feed:      |       | +-------+ +-------+  |       | . [Community   >]  . |
+| +------------------+ |       | +-------+ +-------+  |       | . [Help        >]  . |
+| |  [# VIDEO #]     | |       | | 👤    | | 🔧    |  |       | .................... |
+| +------------------+ |       | | FixIt | | PS5   |  |       | .                  . |
+|    (. [=====] .)     |       | +-------+ +-------+  |       | .                  . |
++----------------------+       +----------------------+       +----------------------+
+```
+
+## 5. Guide Discovery
+
+```text
+5.1 Search Results             5.2 Guide Preview              5.3 Tool Inventory
++----------------------+       +----------------------+       +----------------------+
+| [ <  "MacBook"   X ] |       |                      |       |  My Tool Armory      |
+| (All) (Fix) (Free)   |       |                      |       |                      |
+|                      |       |   [ HERO VIDEO ]     |       | [ Screwdrivers (v) ] |
+| +------------------+ |       |   [            ]     |       | +------+  +------+   |
+| |[#] Title......   | |       |   [    Play    ]     |       | | P5   |  | T5   |   |
+| |    4.8* | 30min  | |       |                      |       | |  img |  |  img |   |
+| +------------------+ |       | .................... |       | | [v]  |  | [ ]  |   |
+|                      |       | . Title....... (bm). |       | +------+  +------+   |
+| +------------------+ |       | . 4.8 ***** (142)  . |       |                      |
+| |[#] Title......   | |       | . [45m] [Med] [$$] . |       | [ Prying Tools (>) ] |
+| |    Pro Only      | |       | .................... |       | +------+  +------+   |
+| +------------------+ |       | . Tools Needed:    . |       | | Spud |  | Pick |   |
+|                      |       | . [T][T][T] (+2)   . |       | |  img |  |  img |   |
+| +------------------+ |       | .................... |       | | [v]  |  | [v]  |   |
+| |[#] Title......   | |       | . Steps:           . |       | +------+  +------+   |
+| |    Community     | |       | . 1. Remove screw  . |       |                      |
+| +------------------+ |       | . [START SESSION ] . |       | * You have 84% *     |
++----------------------+       +----------------------+       +----------------------+
+```
+
+## 6. Session Flow (The Sentinel)
+
+```text
+6.1 Ingestion / Scan           6.2 Calibration                6.3 Tool Audit (Stage)
++----------------------+       +----------------------+       +----------------------+
+|                      |       |                      |       |                      |
+|   ( Camera Feed )    |       |   ( Camera Feed )    |       |   ( Camera Feed )    |
+|                      |       |                      |       |                      |
+|     / Mesh \         |       |         ---          |       |  +-------+     ..... |
+|    | Scan   |        |       |       /     \        |       |  | [P5]  |===> . P5. |
+|     \  Net /         |       |      (   +   )       |       |  +-------+     . v . |
+|                      |       |       \     /        |       |                .   . |
+| .................... |       |         ---          |       |  +-------+     .Spd. |
+| . "Analyzing..."   . |       |    "Place Coin"      |       |  | [Spd] |===> . v . |
+| . [||||||      ]   . |       |                      |       |  +-------+     .   . |
+| .................... |       |      [ Skip ]        |       |                .T5 . |
+|                      |       |                      |       |                . o . |
+| [ Gall ] (O)         |       |                      |       |                ..... |
++----------------------+       +----------------------+       +----------------------+
+
+6.4 Green (Watching)           6.5 Yellow (Verifying)         6.6 Red (Intervention)
++----------------------+       +----------------------+       +----------------------+
+| [GREEN GLOW BAR....] |       | [YELLOW GLOW BAR...] |       | [!! RED PULSE !!...] |
+| ( Eye ) Watching [|] |       | ( ~~~ ) Verifying [X]|       | (!)     STOP     [X] |
+|                      |       |                      |       |                      |
+|   ( Camera Feed )    |       |   ( Camera Feed )    |       |   ( Dimmed Feed )    |
+|                      |       |                      |       |                      |
+|    Green Vignette    |       |  ------------------  |       | +------------------+ |
+|                      |       |    Scanning Line     |       | | /!\ WRONG TOOL | |
+|                      |       |  ------------------  |       | |                  | |
+|                      |       |                      |       | | [Img] vs [Img] | |
+| .................... |       | .................... |       | | You have Ph #00| |
+| . Step 4/24        . |       | . "Checking..."    . |       | | Need P5 Penta  | |
+| . Remove Screw     . |       | . [|||||.......]   . |       | |                  | |
+| . (mic) "Done"     . |       | .                  . |       | | [I UNDERSTAND] | |
+| .................... |       | .................... |       | +------------------+ |
++----------------------+       +----------------------+       +----------------------+
+
+6.7 Completion
++----------------------+
+|      *      *        |
+|   *   ( v )    *     |
+|      Success!        |
+|                      |
+| +------------------+ |
+| | . Holofoil Card. | |
+| | 47:23   24/24    | |
+| | Insurance Active | |
+| +------------------+ |
+|                      |
+|  [ SHARE VIDEO ]     |
+|                      |
+|  ( Save & Exit )     |
++----------------------+
+```
+
+## 7. Community
+
+```text
+7.1 Community Feed             7.2 Video Player               7.3 Creator Profile            7.4 My Profile (Edit)
++----------------------+       +----------------------+       +----------------------+       +----------------------+
+| (Search)    (Filter) |       |                      |       | [ Banner Image...  ] |       | [ Banner Image...  ] |
+|                      |       |                      |       | ( AVATAR ) [Follow]  |       | ( AVATAR ) [Edit  ]  |
+|                      |       |      ( VIDEO )       |       |                      |       |                      |
+|      ( VIDEO )       |       |                      |       |  FixItFrank  (Gold)  |       |  Me (Silver)         |
+|                      |       |                      |       |  "I break things"    |       |                      |
+|                      |       |                      |       |                      |       |                      |
+|                      |       | [..Timeline..!!...]  |       | [ Videos ] [ About ] |       | [ Videos ] [ Stats ] |
+| .................... |       | ^  ^     ^           |       |                      |       |                      |
+| . @User (+). (Lik) . |       | Step Markers         |       | [##] [##] [##]       |       | [##] [##] [##]       |
+| . Title..... (Com) . |       |                      |       |                      |       |                      |
+| . #Tag #Tag. (Shr) . |       | [Play] [Scrub] [x]   |       | [##] [##] [##]       |       | [##] [##] [##]       |
+| .................... |       |                      |       |                      |       |                      |
++----------------------+       +----------------------+       +----------------------+       +----------------------+
+```
+
+## 8. Session History
+
+```text
+8.1 History List               8.2 Session Detail
++----------------------+       +----------------------+
+| My Sessions      [Q] |       | [ < ]  Detail        |
+|                      |       |                      |
+|  |                   |       | [  VIDEO PLAYER    ] |
+| (o) Jan 15 - 42min   |       | [                  ] |
+|  |  MacBook Air M2   |       |                      |
+|  |  [ Watch ] [Shr]  |       | Title: MacBook Air   |
+|  |                   |       | Date: Jan 15         |
+| (o) Jan 10 - 15min   |       |                      |
+|  |  Sourdough        |       | +------------------+ |
+|  |  [ Watch ] [Shr]  |       | | Recording:       | |
+|  |                   |       | | 7 Days left      | |
+| (x) Dec 28 - Expired |       | +------------------+ |
+|  |  ..frosted......  |       |                      |
+|  |                   |       | Steps:               |
+|  |                   |       | 1. Open Case      (v)|
+|                      |       | 2. Unplug Batt    (v)|
++----------------------+       +----------------------+
+```
+
+## 9. Mistake Insurance (The Paperwork)
+
+```text
+9.1 Claim Initiation           9.2 Damage Docs                9.3 Description                9.4 Review & 9.5 Track
++----------------------+       +----------------------+       +----------------------+       +----------------------+
+| File a Claim         |       | Document Damage      |       | What happened?       |       | Claim #123           |
+|                      |       |                      |       |                      |       |                      |
+| +------------------+ |       | +------------------+ |       | Step: [ 12 (v) ]     |       | Status:              |
+| | Eligibility:     | |       | |                  | |       |                      |       | (v) Submitted        |
+| | [v] Guided       | |       | |   Viewfinder     | |       | Description:         |       | (*) Under Review     |
+| | [v] Recording    | |       | |    [ GRID ]      | |       | +------------------+ |       | ( ) Decision         |
+| | [v] < 30 Days    | |       | |                  | |       | | "I heard a snap" | |       |                      |
+| +------------------+ |       | +------------------+ |       | | ................ | |       | +------------------+ |
+|                      |       |                      |       | | ................ | |       | | Summary Card     | |
+| Select Session:      |       | Photos (Min 2):      |       | | ................ | |       | | [Img][Img]       | |
+| [ MacBook Air M2 ]   |       | +----+ +----+ +----+ |       | +------------------+ |       | | "Snap noise"     | |
+|                      |       | |[#] | |[#] | |[ ] | |       |                      |       | +------------------+ |
+| [ START CLAIM ]      |       | +----+ +----+ +----+ |       | [ NEXT ]             |       |                      |
+|                      |       | [ CAPTURE ]          |       |                      |       | [ SUBMIT CLAIM ]     |
++----------------------+       +----------------------+       +----------------------+       +----------------------+
+```
+
+## 10. Settings
+
+```text
+10.1 Settings Main             10.2 Manage My Data
++----------------------+       +----------------------+
+| Settings             |       | My Data              |
+|                      |       |                      |
+| +------------------+ |       | +------------------+ |
+| | Account          | |       | | Usage Summary    | |
+| | [ Pro Member   ] | |       | | 2.3 GB Used      | |
+| +------------------+ |       | | 24 Sessions      | |
+|                      |       | +------------------+ |
+| Session Prefs:       |       |                      |
+| +------------------+ |       | Actions:             |
+| | Voice:    (ON) O | |       |                      |
+| | Haptic:   (ON) O | |       | [ Export Data      ] |
+| | Left Hand:(OFF)O | |       |                      |
+| +------------------+ |       | [ Delete Recs      ] |
+|                      |       |                      |
+| Notifications:       |       | [ DELETE ACCOUNT   ] |
+| +------------------+ |       |    (Red Glass)       |
+| | Expiry:   (ON) O | |       |                      |
++----------------------+       +----------------------+
+```
+
+## 11. Paywall
+
+```text
+11.1 Upgrade Prompt            11.2 Manage Sub
++----------------------+       +----------------------+
+|      ( X )           |       | Manage Subscription  |
+|                      |       |                      |
+|   (  HOLO  )         |       | Current Plan:        |
+|   (  HERO  )         |       |                      |
+|   ( GRAPHIC)         |       | +------------------+ |
+|                      |       | |  CREDIT CARD     | |
+| Unlock TrueStep Pro  |       | |  VISUAL          | |
+|                      |       | |  TrueStep Pro    | |
+| [v] Unlimited Guides |       | |  $99/yr          | |
+| [v] 90 Day Storage   |       | +------------------+ |
+|                      |       |                      |
+| +-------+ +-------+  |       | [ Change Plan ]      |
+| | MTHLY | | YEARLY|  |       |                      |
+| | $15   | | $99   |  |       | [ Update Payment ]   |
+| +-------+ +-------+  |       |                      |
+|                      |       | [ Cancel Sub     ]   |
+| [ START TRIAL ]      |       |                      |
++----------------------+       +----------------------+
+```
+
+## 12. Errors & Edge States
+
+```text
+12.1 Offline Mode              12.2 API Error                 12.3 Perms Recovery            12.4 Session Recover
++----------------------+       +----------------------+       +----------------------+       +----------------------+
+|                      |       |                      |       |                      |       |                      |
+|      (Cloud/)        |       |    /!\ ERROR /!\     |       |    ( Settings )      |       |      ( PAUSE )       |
+|                      |       |                      |       |       ( Gear )       |       |                      |
+|   No Connection      |       |   System Glitch      |       |                      |       |    Session Found     |
+|                      |       |                      |       |   Camera Denied      |       |                      |
+|    Everything        |       |  We're having        |       |                      |       | +------------------+ |
+|    is frozen.        |       |  trouble connecting  |       | 1. Open Settings     |       | | Snapshot of      | |
+|                      |       |  to the brain.       |       | 2. Tap TrueStep      |       | | last step...     | |
+|                      |       |                      |       | 3. Toggle Camera     |       | +------------------+ |
+| [ View Downloads ]   |       | [ TRY AGAIN ]        |       |                      |       |                      |
+|                      |       |                      |       | [ OPEN SETTINGS ]    |       | [ RESUME ]           |
+|      (Retry)         |       |                      |       |                      |       | ( Discard )          |
++----------------------+       +----------------------+       +----------------------+       +----------------------+
+```
