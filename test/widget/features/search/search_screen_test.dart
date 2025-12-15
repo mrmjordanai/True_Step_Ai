@@ -132,7 +132,7 @@ void main() {
     });
 
     group('results list', () {
-      testWidgets('shows empty state when no search', (tester) async {
+      testWidgets('shows browse message when no search query', (tester) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
@@ -149,6 +149,55 @@ void main() {
 
         // Should have some scrollable area
         expect(find.byType(Scrollable), findsWidgets);
+      });
+
+      testWidgets('shows "No results found" when search has no matches', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pumpAndSettle();
+
+        // Enter a search query that won't match any guides
+        await tester.enterText(find.byType(TextField), 'xyznonexistent123');
+        await tester.pumpAndSettle();
+
+        // Should show no results message
+        expect(find.text('No results found'), findsOneWidget);
+      });
+
+      testWidgets('filters guides based on search query', (tester) async {
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pumpAndSettle();
+
+        // Initially should show popular guides
+        expect(find.text('Perfect Scrambled Eggs'), findsOneWidget);
+        expect(find.text('iPhone Screen Replacement'), findsOneWidget);
+
+        // Search for eggs
+        await tester.enterText(find.byType(TextField), 'eggs');
+        await tester.pumpAndSettle();
+
+        // Should show matching guide
+        expect(find.text('Perfect Scrambled Eggs'), findsOneWidget);
+        // Should not show non-matching guides
+        expect(find.text('iPhone Screen Replacement'), findsNothing);
+      });
+
+      testWidgets('shows all guides when search is cleared', (tester) async {
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pumpAndSettle();
+
+        // Enter a search query
+        await tester.enterText(find.byType(TextField), 'eggs');
+        await tester.pumpAndSettle();
+
+        // Clear the search
+        await tester.enterText(find.byType(TextField), '');
+        await tester.pumpAndSettle();
+
+        // Should show all popular guides again
+        expect(find.text('Popular Guides'), findsOneWidget);
+        expect(find.text('Perfect Scrambled Eggs'), findsOneWidget);
       });
     });
 

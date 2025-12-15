@@ -1,89 +1,12 @@
-# CLAUDE.md - True Step AI Project Guide
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-**TrueStep** is an AI-powered visual verification agent that bridges the gap between instructional content and physical task execution. Unlike traditional tutorials, TrueStep actively watches, understands, and guides users through complex physical tasks in real-time using computer vision and large language models.
+**TrueStep** is an AI-powered visual verification agent for physical tasks. It watches users through the camera and guides them through complex tasks (cooking, repairs) using computer vision and LLMs.
 
-**Core Value Proposition:** *"Don't just show me how. Watch me do it."*
-
-**Key Innovation:** Visual State Verification - TrueStep monitors user progress through the device camera and only advances to the next step when it visually confirms completion. This "sentinel loop" catches mistakes before they become costly problems.
-
----
-
-## Tech Stack
-
-### Frontend: Flutter (iOS/Android)
-- **State Management:** Riverpod v2.4.0+
-- **Camera:** `camera` package with ImageStream handler
-- **On-Device ML:** YOLOv11-nano via `ultralytics_yolo`
-- **Audio:** `flutter_sound` (PCM 16kHz), speech-to-text, text-to-speech
-- **UI:** Lottie animations, glassmorphism design
-- **Navigation:** Go Router v12.0.0+
-- **Data:** Hive, SharedPreferences, Freezed, json_serializable
-- **Payments:** RevenueCat (purchases_flutter v6.6.0+)
-
-### Backend: Firebase
-- **Auth:** Anonymous → Email/Apple/Google Sign-in
-- **Database:** Firestore (production mode)
-- **Storage:** Firebase Storage for recordings
-- **Functions:** Guide ingestion, image analysis, scheduled cleanup
-- **AI:** Firebase AI (Gemini 2.5 Flash, Gemini 3 Pro)
-
-### AI/ML - "Traffic Light Architecture" (3-Tier)
-- **Tier 1 (Green):** YOLOv11 via CoreML/TFLite - Hand/tool detection (<10ms)
-- **Tier 2 (Yellow):** Gemini 2.5 Flash Live - Streaming verification (600-800ms)
-- **Tier 3 (Red):** Gemini 3 Pro + RAG - Deep analysis, safety alerts (3-5s)
-
----
-
-## Project Structure
-
-```
-lib/
-├── main.dart
-├── app/
-│   ├── app.dart               # Root app widget
-│   ├── routes.dart            # GoRouter navigation
-│   └── theme.dart             # Design system
-├── core/
-│   ├── constants/
-│   │   ├── colors.dart        # Color palette
-│   │   ├── spacing.dart       # 8dp base unit system
-│   │   └── typography.dart    # SF Pro font scales
-│   ├── models/
-│   │   ├── visual_state_graph.dart
-│   │   ├── session.dart
-│   │   └── guide.dart
-│   ├── utils/
-│   └── extensions/
-├── features/
-│   ├── onboarding/            # Welcome, Permissions, Account, First Task
-│   ├── home/                  # Home/Briefing with Omni-Bar
-│   ├── search/                # Guide discovery
-│   ├── session/               # Preview, Calibration, Tool Audit, Active, Transition, Intervention, Completion
-│   ├── community/             # Feed, Video Player, Creator Profile, Share
-│   ├── history/               # Session List, Session Detail
-│   ├── claims/                # Mistake Insurance claim flow
-│   ├── settings/              # Settings, Account Management
-│   └── paywall/               # Subscription, Upgrade Prompt
-├── shared/
-│   ├── widgets/
-│   │   ├── glass_card.dart
-│   │   ├── primary_button.dart
-│   │   ├── loading_indicator.dart
-│   │   └── traffic_light_badge.dart
-│   └── providers/             # Shared Riverpod providers
-└── services/
-    ├── ai_service.dart        # Gemini integration
-    ├── camera_service.dart    # Camera streaming & capture
-    ├── voice_service.dart     # Speech-to-text, TTS, wake word
-    ├── ingestion_service.dart # URL/text/image parsing
-    ├── recording_service.dart # Video recording & compression
-    ├── yolo_service.dart      # On-device ML inference
-    └── storage_service.dart   # Firebase Storage uploads
-```
-
----
+**Core Innovation:** Visual State Verification via "Sentinel Loop" - monitors user progress and only advances to the next step when visually confirmed complete.
 
 ## Build & Run Commands
 
@@ -91,56 +14,89 @@ lib/
 # Install dependencies
 flutter pub get
 
-# Run code generation (Riverpod, Freezed, JSON)
+# Run code generation (required after model/provider changes)
 dart run build_runner build --delete-conflicting-outputs
 
-# Run on device/emulator
+# Run app
 flutter run
 
 # Static analysis
 flutter analyze
 
+# Run all tests
+flutter test
+
+# Run specific test file
+flutter test test/widget/features/onboarding/permissions_screen_test.dart
+
+# Run tests with coverage
+flutter test --coverage
+
 # Format code
 dart format lib/
 
-# Run tests
-flutter test
-
 # Build for release
 flutter build ios
-flutter build appbundle  # Android
-
-# Firebase deploy
-firebase deploy --only functions
+flutter build appbundle
 ```
 
----
+## Architecture
+
+### Tech Stack
+- **Frontend:** Flutter (iOS 15+/Android API 26+)
+- **State Management:** Riverpod with `riverpod_generator`
+- **Navigation:** Go Router
+- **Backend:** Firebase (Auth, Firestore, Storage)
+- **AI:** Firebase AI (Gemini), YOLOv11-nano for on-device ML
+
+### AI "Traffic Light" System (3-Tier)
+- **Tier 1 (Green):** YOLOv11 on-device - Hand/tool detection (<10ms)
+- **Tier 2 (Yellow):** Gemini Flash - Streaming verification (600-800ms)
+- **Tier 3 (Red):** Gemini Pro - Deep analysis, safety alerts (3-5s)
+
+### Service Layer Pattern
+Services extend `BaseService` which provides lifecycle management:
+```dart
+abstract class BaseService {
+  Future<void> initialize();  // Call before use
+  Future<void> dispose();     // Release resources
+  void ensureInitialized();   // Throws if not init'd
+}
+```
+
+### Key Directories
+- `lib/features/` - Feature modules (onboarding, home, session, etc.)
+- `lib/services/` - Business logic services (auth, camera, voice, AI)
+- `lib/shared/widgets/` - Reusable UI components (GlassCard, PrimaryButton, TrafficLightBadge)
+- `lib/core/constants/` - Design tokens (colors, spacing, typography)
+- `lib/app/routes.dart` - All navigation routes
 
 ## Design System
 
 ### Theme: Dark Mode Default
-- **Background:** `#0A0A0A`
-- **Surfaces:** `#1E1E1E`
-- **Glassmorphism:** 20% opacity, 16px blur, 12% white borders
+- Background: `#0A0A0A`, Surfaces: `#1E1E1E`
+- Glassmorphism: 20% opacity, 16px blur, 12% white borders
 
 ### Traffic Light Colors
-- **Green (Success):** `#00E676` - Watching, verified
-- **Yellow (Processing):** `#FFC400` - Analyzing, uncertain
-- **Red (Alert):** `#FF3D00` - Danger, stop, intervention
+```dart
+TrueStepColors.sentinelGreen    // #00E676 - Watching, verified
+TrueStepColors.analysisYellow   // #FFC400 - Analyzing
+TrueStepColors.interventionRed  // #FF3D00 - Stop, danger
+```
 
 ### Spacing (8dp base)
-- xs: 4dp | sm: 8dp | md: 16dp | lg: 24dp | xl: 32dp | xxl: 48dp
-
-### Typography
-- iOS: SF Pro Display/Text
-- Android: Roboto
+```dart
+TrueStepSpacing.xs   // 4dp
+TrueStepSpacing.sm   // 8dp
+TrueStepSpacing.md   // 16dp
+TrueStepSpacing.lg   // 24dp
+TrueStepSpacing.xl   // 32dp
+```
 
 ### Touch Targets
 - Minimum: 48x48dp
-- Button height: 56dp
-- Border radius: 12dp
-
----
+- Button height: 56dp (`TrueStepSpacing.buttonHeight`)
+- Border radius: 12dp (`TrueStepSpacing.radiusMd`)
 
 ## Code Conventions
 
@@ -149,37 +105,24 @@ firebase deploy --only functions
 - Widgets: `*_widget.dart`
 - Providers: `*_provider.dart`
 - Services: `*_service.dart`
-- Models: `*.dart` (with Freezed)
 
 ### State Management
-- Use `@riverpod` annotations with `riverpod_generator`
-- Services → Providers → Widgets separation
+- Use `@riverpod` annotations with code generation
+- Pattern: Services → Providers → Widgets
 
 ### Data Models
-- Freezed for immutable models
+- Use Freezed for immutable models
 - JSON serialization via `json_serializable`
 
-### Color References
-```dart
-TrueStepColors.sentinelGreen
-TrueStepColors.processingYellow
-TrueStepColors.alertRed
-TrueStepColors.glassSurface
-```
-
----
-
-## Testing Strategy
-
-### Coverage Targets
-- Unit Tests (Services): 90%
-- Unit Tests (Providers): 85%
-- Widget Tests: 80%
-- Integration Tests: 70%
+## Testing
 
 ### Test Structure
 ```
 test/
+├── helpers/
+│   ├── mock_services.dart    # MockAuthService, MockPermissionService
+│   ├── pump_app.dart         # Widget test helpers
+│   └── test_helpers.dart
 ├── unit/
 │   ├── services/
 │   └── providers/
@@ -189,120 +132,29 @@ test/
 └── integration/
 ```
 
-### Approach
-- **Test-Driven Development (TDD):** Write tests before implementation
-- Use `mockito`/`mocktail` for mocking
-- Critical E2E path: Onboarding → Session → Completion
+### Using Test Helpers
+```dart
+// Create mocks with default stubs
+final mockAuth = createMockAuthService(isSignedIn: true, userId: 'test-user');
+final mockPermission = createMockPermissionService(cameraGranted: true);
+```
 
----
+### TDD Approach
+Write tests before implementation. Use `mocktail` for mocking.
 
-## Core Features
-
-### Guide Ingestion ("The Briefing")
-- Accept: URL (iFixit, recipes), text, or image
-- Parse into VisualStateGraph (steps with success criteria)
-- Cache guides in Firestore
-
-### Sentinel Loop (Traffic Light System)
-- **GREEN:** On-device YOLO hand/tool tracking → gatekeeper
-- **YELLOW:** Streaming Gemini analysis against success criteria
-- **RED:** Intervention - wrong tool, danger, incomplete step
-- Advance only when verified GREEN
-
-### Voice Control
-- Wake word: "Hey TrueStep"
-- Commands: Next, Repeat, Help, Pause, Stop, Back
-- Hands-free for messy/dirty hands scenarios
-
-### Session Recording
-- 720p, 30fps, H.264
-- 3-second verification clips per step
-- 30-day auto-delete (privacy)
-- Firebase Storage backend
-
----
-
-## Key Documentation Files
+## Key Documentation
 
 | File | Purpose |
 |------|---------|
-| `True_Step_Ai/True_Step_Ai_PRD.md` | Product Requirements Document |
-| `True_Step_Ai/UI_UX_docs/TrueStep_UI_UX_Spec.md` | UI/UX Specifications |
-| `True_Step_Ai/TrueStep_Development_Roadmap.md` | Development Phases |
-| `True_Step_Ai/Future_Features/TrueStep_CoPilot_Feature_Spec.md` | Co-Pilot Feature Spec |
+| `TrueStep_Development_Roadmap.md` | Development phases & task checklist |
+| `True_Step_Ai_PRD.md` | Product Requirements Document |
+| `UI_UX_docs/TrueStep_UI_UX_Spec.md` | UI/UX Specifications |
 
----
+## Development Status
 
-## Development Phases
-
-| Phase | Focus | Key Deliverables |
-|-------|-------|-----------------|
-| **0** | Foundation | Flutter setup, Firebase, design system |
-| **1** | "Sous-Chef" MVP | URL/text ingestion, Gemini Flash, voice, recording |
-| **2** | "Mechanic" Alpha | Image input, YOLO, iFixit, 30-day TTL |
-| **3** | Monetization | RevenueCat, paywall, Mistake Insurance |
-| **4** | Community | Video sharing, moderation, Co-Pilot |
-| **5** | Platform | Expert marketplace, B2B, AR glasses |
-
----
-
-## Performance Guidelines
-
-- Camera frame processing: 30fps target
-- Gemini API calls throttled to reduce cost
-- Adaptive video bitrate:
-  - 3G: 400 kbps
-  - 4G: 1 Mbps
-  - WiFi: 2.5 Mbps
-- YOLO inference: <10ms latency, <10% battery/hour
-
----
-
-## Security & Privacy
-
-- **Recording auto-delete:** 30 days (7-day warning)
-- **User consent required** for community sharing
-- **Firebase Security Rules:** Users access only their data
-- **Camera/Mic:** Explicit permission with context
-- **Auth flow:** Anonymous → upgrade to Email/Apple/Google
-
----
-
-## Accessibility
-
-- WCAG 2.1 AA compliance (4.5:1 contrast minimum)
-- Colorblind support (icons + colors for traffic lights)
-- Text scaling to 200%
-- High contrast mode option
-- Screen reader optimization
-- 48x48dp minimum touch targets
-- Respects "Reduce Motion" setting
-
----
-
-## Error Handling
-
-- Graceful degradation (manual mode if AI unavailable)
-- Network reconnection logic
-- Permission denied recovery flows
-- Session crash recovery with resume
-- User-facing messages in non-technical language
-
----
-
-## Success Metrics
-
-### MVP (Week 8)
-- 500+ beta users
-- 85%+ task completion rate
-- <3% false positive verification rate
-
-### Business (Week 24)
-- $50K ARR
-- <5% insurance claim rate
-- NPS > 40
-
-### Community (Week 32)
-- 10,000+ shared videos
-- 20% users share sessions
-- Viral coefficient >1.0
+Track progress in `TrueStep_Development_Roadmap.md`. Current status:
+- **Phase 0:** ✅ Complete (Foundation)
+- **Phase 1.1:** ✅ Complete (Shared Widgets)
+- **Phase 1.2:** ✅ Complete (Onboarding Flow)
+- **Phase 1.3:** ✅ Complete (Home & Navigation)
+- **Phase 1.4+:** In Progress (Guide Ingestion, Camera & Voice, Session Flow)

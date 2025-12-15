@@ -6,13 +6,12 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 import 'package:truestep/features/onboarding/screens/account_screen.dart';
 import 'package:truestep/services/auth_service.dart';
-import 'package:truestep/shared/widgets/primary_button.dart';
-
-import '../../../helpers/mock_services.dart';
 
 // Mock classes
 class MockAuthService extends Mock implements AuthService {}
+
 class MockFirebaseUser extends Mock implements firebase_auth.User {}
+
 class MockUserCredential extends Mock implements firebase_auth.UserCredential {}
 
 void main() {
@@ -22,19 +21,11 @@ void main() {
     mockAuthService = MockAuthService();
   });
 
-  Widget buildTestWidget({
-    VoidCallback? onContinue,
-    VoidCallback? onSkip,
-  }) {
+  Widget buildTestWidget({VoidCallback? onContinue, VoidCallback? onSkip}) {
     return ProviderScope(
-      overrides: [
-        authServiceProvider.overrideWithValue(mockAuthService),
-      ],
+      overrides: [authServiceProvider.overrideWithValue(mockAuthService)],
       child: MaterialApp(
-        home: AccountScreen(
-          onContinue: onContinue ?? () {},
-          onSkip: onSkip,
-        ),
+        home: AccountScreen(onContinue: onContinue ?? () {}, onSkip: onSkip),
       ),
     );
   }
@@ -76,7 +67,9 @@ void main() {
         expect(find.text('Continue as Guest'), findsOneWidget);
       });
 
-      testWidgets('renders divider between social and email options', (tester) async {
+      testWidgets('renders divider between social and email options', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
@@ -85,7 +78,9 @@ void main() {
     });
 
     group('Apple Sign-In (Coming Soon)', () {
-      testWidgets('shows Coming Soon snackbar when Apple tapped', (tester) async {
+      testWidgets('shows Coming Soon snackbar when Apple tapped', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
@@ -97,7 +92,9 @@ void main() {
     });
 
     group('Google Sign-In (Coming Soon)', () {
-      testWidgets('shows Coming Soon snackbar when Google tapped', (tester) async {
+      testWidgets('shows Coming Soon snackbar when Google tapped', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
@@ -109,7 +106,9 @@ void main() {
     });
 
     group('Email Sign-In', () {
-      testWidgets('shows email form when Continue with Email tapped', (tester) async {
+      testWidgets('shows email form when Continue with Email tapped', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
@@ -168,56 +167,74 @@ void main() {
         await tester.pumpAndSettle();
 
         // Enter valid email but short password
-        await tester.enterText(find.byType(TextField).first, 'test@example.com');
+        await tester.enterText(
+          find.byType(TextField).first,
+          'test@example.com',
+        );
         await tester.enterText(find.byType(TextField).last, '123');
         await tester.tap(find.text('Sign Up'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Password must be at least 6 characters'), findsOneWidget);
+        expect(
+          find.text('Password must be at least 6 characters'),
+          findsOneWidget,
+        );
       });
 
-      testWidgets('submits valid email/password and calls onContinue', (tester) async {
+      testWidgets('submits valid email/password and calls onContinue', (
+        tester,
+      ) async {
         bool continueCalled = false;
         final mockCredential = MockUserCredential();
 
-        when(() => mockAuthService.createUserWithEmailAndPassword(
-              email: any(named: 'email'),
-              password: any(named: 'password'),
-            )).thenAnswer((_) async => mockCredential);
+        when(
+          () => mockAuthService.createUserWithEmailAndPassword(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenAnswer((_) async => mockCredential);
 
-        await tester.pumpWidget(buildTestWidget(
-          onContinue: () => continueCalled = true,
-        ));
+        await tester.pumpWidget(
+          buildTestWidget(onContinue: () => continueCalled = true),
+        );
         await tester.pumpAndSettle();
 
         await tester.tap(find.text('Continue with Email'));
         await tester.pumpAndSettle();
 
         // Enter valid credentials
-        await tester.enterText(find.byType(TextField).first, 'test@example.com');
+        await tester.enterText(
+          find.byType(TextField).first,
+          'test@example.com',
+        );
         await tester.enterText(find.byType(TextField).last, 'password123');
         await tester.tap(find.text('Sign Up'));
         await tester.pumpAndSettle();
 
-        verify(() => mockAuthService.createUserWithEmailAndPassword(
-              email: 'test@example.com',
-              password: 'password123',
-            )).called(1);
+        verify(
+          () => mockAuthService.createUserWithEmailAndPassword(
+            email: 'test@example.com',
+            password: 'password123',
+          ),
+        ).called(1);
         expect(continueCalled, isTrue);
       });
     });
 
     group('Guest Sign-In', () {
-      testWidgets('signs in anonymously when Continue as Guest tapped', (tester) async {
+      testWidgets('signs in anonymously when Continue as Guest tapped', (
+        tester,
+      ) async {
         bool continueCalled = false;
         final mockCredential = MockUserCredential();
 
-        when(() => mockAuthService.signInAnonymously())
-            .thenAnswer((_) async => mockCredential);
+        when(
+          () => mockAuthService.signInAnonymously(),
+        ).thenAnswer((_) async => mockCredential);
 
-        await tester.pumpWidget(buildTestWidget(
-          onContinue: () => continueCalled = true,
-        ));
+        await tester.pumpWidget(
+          buildTestWidget(onContinue: () => continueCalled = true),
+        );
         await tester.pumpAndSettle();
 
         await tester.tap(find.text('Continue as Guest'));
@@ -227,9 +244,12 @@ void main() {
         expect(continueCalled, isTrue);
       });
 
-      testWidgets('shows error message when guest sign-in fails', (tester) async {
-        when(() => mockAuthService.signInAnonymously())
-            .thenThrow(Exception('Network error'));
+      testWidgets('shows error message when guest sign-in fails', (
+        tester,
+      ) async {
+        when(
+          () => mockAuthService.signInAnonymously(),
+        ).thenThrow(Exception('Network error'));
 
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
@@ -243,7 +263,9 @@ void main() {
     });
 
     group('navigation', () {
-      testWidgets('back button returns to main view from email form', (tester) async {
+      testWidgets('back button returns to main view from email form', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 

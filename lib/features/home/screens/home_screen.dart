@@ -16,8 +16,14 @@ import '../widgets/omni_bar.dart';
 /// - Featured Guides section
 /// - Quick Actions grid
 class HomeScreen extends ConsumerWidget {
-  /// Callback when Omni-Bar is tapped
+  /// Callback when Omni-Bar is tapped (deprecated, use onOmniBarSubmit)
   final VoidCallback? onOmniBarTap;
+
+  /// Callback when text is submitted via Omni-Bar (URL or task description)
+  final void Function(String input)? onOmniBarSubmit;
+
+  /// Callback when voice input is requested via Omni-Bar
+  final VoidCallback? onVoiceTap;
 
   /// Callback when notification bell is tapped
   final VoidCallback? onNotificationTap;
@@ -28,6 +34,8 @@ class HomeScreen extends ConsumerWidget {
   const HomeScreen({
     super.key,
     this.onOmniBarTap,
+    this.onOmniBarSubmit,
+    this.onVoiceTap,
     this.onNotificationTap,
     this.onQuickAction,
   });
@@ -53,6 +61,8 @@ class HomeScreen extends ConsumerWidget {
                 // Omni-Bar
                 OmniBar(
                   onTap: onOmniBarTap,
+                  onSubmit: onOmniBarSubmit,
+                  onMicTap: onVoiceTap,
                 ),
                 const SizedBox(height: TrueStepSpacing.xl),
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mocktail/mocktail.dart';
 
 import 'package:truestep/features/home/screens/home_screen.dart';
 import 'package:truestep/features/home/widgets/omni_bar.dart';
@@ -9,12 +8,16 @@ import 'package:truestep/features/home/widgets/omni_bar.dart';
 void main() {
   Widget buildTestWidget({
     VoidCallback? onOmniBarTap,
+    void Function(String)? onOmniBarSubmit,
+    VoidCallback? onVoiceTap,
     VoidCallback? onNotificationTap,
   }) {
     return ProviderScope(
       child: MaterialApp(
         home: HomeScreen(
           onOmniBarTap: onOmniBarTap,
+          onOmniBarSubmit: onOmniBarSubmit,
+          onVoiceTap: onVoiceTap,
           onNotificationTap: onNotificationTap,
         ),
       ),
@@ -41,9 +44,9 @@ void main() {
       testWidgets('notification bell is tappable', (tester) async {
         bool notificationTapped = false;
 
-        await tester.pumpWidget(buildTestWidget(
-          onNotificationTap: () => notificationTapped = true,
-        ));
+        await tester.pumpWidget(
+          buildTestWidget(onNotificationTap: () => notificationTapped = true),
+        );
         await tester.pumpAndSettle();
 
         await tester.tap(find.byIcon(Icons.notifications_outlined));
@@ -79,27 +82,50 @@ void main() {
         await tester.pumpAndSettle();
 
         // Look for the full placeholder text in OmniBar
-        expect(
-          find.textContaining("Hey TrueStep"),
-          findsOneWidget,
-        );
+        expect(find.textContaining("Hey TrueStep"), findsOneWidget);
       });
 
-      testWidgets('tapping OmniBar calls onOmniBarTap', (tester) async {
-        bool omniBarTapped = false;
-
-        await tester.pumpWidget(buildTestWidget(
-          onOmniBarTap: () => omniBarTapped = true,
-        ));
+      testWidgets('tapping OmniBar expands it to show TextField', (tester) async {
+        await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
+        // OmniBar should not have TextField initially
+        expect(find.byType(TextField), findsNothing);
+
+        // Tap the OmniBar
         await tester.tap(find.byType(OmniBar));
         await tester.pumpAndSettle();
 
-        expect(omniBarTapped, isTrue);
+        // Now TextField should be visible
+        expect(find.byType(TextField), findsOneWidget);
       });
 
-      testWidgets('OmniBar has microphone icon for voice input', (tester) async {
+      testWidgets('OmniBar submission calls onOmniBarSubmit', (tester) async {
+        String? submittedText;
+
+        await tester.pumpWidget(
+          buildTestWidget(onOmniBarSubmit: (text) => submittedText = text),
+        );
+        await tester.pumpAndSettle();
+
+        // Tap to expand
+        await tester.tap(find.byType(OmniBar));
+        await tester.pumpAndSettle();
+
+        // Enter text
+        await tester.enterText(find.byType(TextField), 'https://example.com/recipe');
+        await tester.pumpAndSettle();
+
+        // Submit
+        await tester.tap(find.byIcon(Icons.arrow_forward));
+        await tester.pumpAndSettle();
+
+        expect(submittedText, equals('https://example.com/recipe'));
+      });
+
+      testWidgets('OmniBar has microphone icon for voice input', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
@@ -165,7 +191,9 @@ void main() {
         expect(find.text('Quick Actions'), findsOneWidget);
       });
 
-      testWidgets('quick actions include Scan, Paste URL, Voice', (tester) async {
+      testWidgets('quick actions include Scan, Paste URL, Voice', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 

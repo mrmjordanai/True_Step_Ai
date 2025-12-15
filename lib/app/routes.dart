@@ -9,6 +9,7 @@ import '../features/onboarding/screens/permissions_screen.dart';
 import '../features/onboarding/screens/account_screen.dart';
 import '../features/onboarding/screens/first_task_screen.dart';
 import '../features/home/screens/home_screen.dart';
+import '../features/home/widgets/quick_action_modal.dart';
 import '../features/search/screens/search_screen.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 
@@ -445,7 +446,26 @@ class MainNavigationShell extends StatelessWidget {
           );
         },
         onQuickActionTap: () {
-          // TODO: Show quick action modal/overlay
+          showQuickActionModal(
+            context,
+            onActionSelected: (action) {
+              // Handle the selected action
+              switch (action) {
+                case QuickAction.pasteUrl:
+                  // TODO: Open URL paste dialog or navigate to search
+                  break;
+                case QuickAction.describeTask:
+                  // TODO: Navigate to home and focus OmniBar
+                  break;
+                case QuickAction.voiceInput:
+                  // TODO: Activate voice input
+                  break;
+                case QuickAction.scanQr:
+                  // TODO: Open QR scanner
+                  break;
+              }
+            },
+          );
         },
         notificationCount: 0, // TODO: Get from provider
       ),

@@ -6,6 +6,25 @@ import '../../../core/constants/spacing.dart';
 import '../../../core/constants/typography.dart';
 import '../../../shared/widgets/glass_card.dart';
 
+/// Mock guide data for display
+class _GuideData {
+  final String title;
+  final String category;
+  final String duration;
+  final String difficulty;
+  final IconData icon;
+  final Color color;
+
+  const _GuideData({
+    required this.title,
+    required this.category,
+    required this.duration,
+    required this.difficulty,
+    required this.icon,
+    required this.color,
+  });
+}
+
 /// Search/Browse screen for finding guides
 ///
 /// Features:
@@ -13,6 +32,7 @@ import '../../../shared/widgets/glass_card.dart';
 /// - Category filters (All, Cooking, DIY)
 /// - Results list with guide cards
 /// - Popular guides section
+/// - Empty state when no results match
 class SearchScreen extends ConsumerStatefulWidget {
   /// Callback when voice input button is tapped
   final VoidCallback? onVoiceTap;
@@ -41,6 +61,55 @@ class SearchScreen extends ConsumerStatefulWidget {
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _searchController = TextEditingController();
   String _selectedCategory = 'all';
+  String _searchQuery = '';
+
+  /// Mock guides data
+  static const List<_GuideData> _allGuides = [
+    _GuideData(
+      title: 'Perfect Scrambled Eggs',
+      category: 'Cooking',
+      duration: '10 min',
+      difficulty: 'Easy',
+      icon: Icons.egg,
+      color: TrueStepColors.analysisYellow,
+    ),
+    _GuideData(
+      title: 'iPhone Screen Replacement',
+      category: 'DIY',
+      duration: '45 min',
+      difficulty: 'Medium',
+      icon: Icons.phone_iphone,
+      color: TrueStepColors.accentBlue,
+    ),
+    _GuideData(
+      title: 'Fix a Running Toilet',
+      category: 'DIY',
+      duration: '20 min',
+      difficulty: 'Easy',
+      icon: Icons.plumbing,
+      color: TrueStepColors.sentinelGreen,
+    ),
+  ];
+
+  /// Get filtered guides based on search query and category
+  List<_GuideData> get _filteredGuides {
+    if (_searchQuery.isEmpty) {
+      return _allGuides;
+    }
+
+    final query = _searchQuery.toLowerCase();
+    return _allGuides.where((guide) {
+      final titleMatch = guide.title.toLowerCase().contains(query);
+      final categoryMatch = guide.category.toLowerCase().contains(query);
+      return titleMatch || categoryMatch;
+    }).toList();
+  }
+
+  /// Check if we have search results
+  bool get _hasResults => _filteredGuides.isNotEmpty;
+
+  /// Check if user has entered a search query
+  bool get _hasSearchQuery => _searchQuery.isNotEmpty;
 
   @override
   void dispose() {
@@ -49,6 +118,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
     widget.onSearch?.call(query);
   }
 
@@ -90,12 +162,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Browse message
-                      _buildBrowseMessage(),
-                      const SizedBox(height: TrueStepSpacing.xl),
+                      // Show browse message only when no search query
+                      if (!_hasSearchQuery) ...[
+                        _buildBrowseMessage(),
+                        const SizedBox(height: TrueStepSpacing.xl),
+                      ],
 
-                      // Popular guides
-                      _buildPopularGuides(),
+                      // Show results or empty state
+                      if (_hasSearchQuery && !_hasResults)
+                        _buildEmptyState()
+                      else
+                        _buildGuidesList(),
+
                       const SizedBox(height: TrueStepSpacing.lg),
                     ],
                   ),
@@ -233,43 +311,73 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  Widget _buildPopularGuides() {
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: TrueStepSpacing.xxl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: TrueStepColors.glassSurface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: TrueStepColors.glassBorder,
+                ),
+              ),
+              child: const Icon(
+                Icons.search_off,
+                color: TrueStepColors.textTertiary,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: TrueStepSpacing.md),
+            Text(
+              'No results found',
+              style: TrueStepTypography.bodyLarge.copyWith(
+                color: TrueStepColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: TrueStepSpacing.xs),
+            Text(
+              'Try a different search term',
+              style: TrueStepTypography.caption.copyWith(
+                color: TrueStepColors.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuidesList() {
+    final guides = _filteredGuides;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Popular Guides',
+          _hasSearchQuery ? 'Search Results' : 'Popular Guides',
           style: TrueStepTypography.title,
         ),
         const SizedBox(height: TrueStepSpacing.md),
 
-        // Popular guide items
-        _buildGuideItem(
-          title: 'Perfect Scrambled Eggs',
-          category: 'Cooking',
-          duration: '10 min',
-          difficulty: 'Easy',
-          icon: Icons.egg,
-          color: TrueStepColors.analysisYellow,
-        ),
-        const SizedBox(height: TrueStepSpacing.md),
-        _buildGuideItem(
-          title: 'iPhone Screen Replacement',
-          category: 'DIY',
-          duration: '45 min',
-          difficulty: 'Medium',
-          icon: Icons.phone_iphone,
-          color: TrueStepColors.accentBlue,
-        ),
-        const SizedBox(height: TrueStepSpacing.md),
-        _buildGuideItem(
-          title: 'Fix a Running Toilet',
-          category: 'DIY',
-          duration: '20 min',
-          difficulty: 'Easy',
-          icon: Icons.plumbing,
-          color: TrueStepColors.sentinelGreen,
-        ),
+        // Guide items
+        ...guides.map((guide) => Padding(
+              padding: const EdgeInsets.only(bottom: TrueStepSpacing.md),
+              child: _buildGuideItem(
+                title: guide.title,
+                category: guide.category,
+                duration: guide.duration,
+                difficulty: guide.difficulty,
+                icon: guide.icon,
+                color: guide.color,
+              ),
+            )),
       ],
     );
   }
@@ -283,7 +391,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     required Color color,
   }) {
     return GestureDetector(
-      onTap: () => widget.onGuideTap?.call(title.toLowerCase().replaceAll(' ', '-')),
+      onTap: () =>
+          widget.onGuideTap?.call(title.toLowerCase().replaceAll(' ', '-')),
       child: GlassCard(
         padding: const EdgeInsets.all(TrueStepSpacing.md),
         child: Row(

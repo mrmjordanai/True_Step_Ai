@@ -8,9 +8,6 @@ import 'package:truestep/features/onboarding/screens/welcome_screen.dart';
 import 'package:truestep/features/onboarding/widgets/page_indicator.dart';
 import 'package:truestep/features/onboarding/providers/onboarding_provider.dart';
 import 'package:truestep/core/models/onboarding_status.dart';
-import 'package:truestep/shared/widgets/primary_button.dart';
-
-import '../../../helpers/pump_app.dart';
 
 // Mock Hive Box
 class MockBox extends Mock implements Box<OnboardingStatus> {}
@@ -28,13 +25,9 @@ void main() {
     when(() => mockBox.put('status', any())).thenAnswer((_) async {});
   });
 
-  Widget buildTestWidget({
-    void Function(String)? onNavigate,
-  }) {
+  Widget buildTestWidget({void Function(String)? onNavigate}) {
     return ProviderScope(
-      overrides: [
-        onboardingBoxProvider.overrideWithValue(mockBox),
-      ],
+      overrides: [onboardingBoxProvider.overrideWithValue(mockBox)],
       child: MaterialApp(
         home: WelcomeScreen(
           onGetStarted: () => onNavigate?.call('get_started'),
@@ -95,7 +88,9 @@ void main() {
         expect(find.text('Never miss a step again'), findsOneWidget);
       });
 
-      testWidgets('second page shows Visual Verification content', (tester) async {
+      testWidgets('second page shows Visual Verification content', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
@@ -184,7 +179,9 @@ void main() {
         expect(pageIndicator.currentPage, equals(1));
       });
 
-      testWidgets('tapping PageIndicator dot navigates to that page', (tester) async {
+      testWidgets('tapping PageIndicator dot navigates to that page', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
@@ -207,9 +204,9 @@ void main() {
       testWidgets('Skip button calls onSkip callback', (tester) async {
         String? navigatedTo;
 
-        await tester.pumpWidget(buildTestWidget(
-          onNavigate: (route) => navigatedTo = route,
-        ));
+        await tester.pumpWidget(
+          buildTestWidget(onNavigate: (route) => navigatedTo = route),
+        );
         await tester.pumpAndSettle();
 
         await tester.tap(find.text('Skip'));
@@ -218,12 +215,14 @@ void main() {
         expect(navigatedTo, equals('skip'));
       });
 
-      testWidgets('Get Started button calls onGetStarted callback', (tester) async {
+      testWidgets('Get Started button calls onGetStarted callback', (
+        tester,
+      ) async {
         String? navigatedTo;
 
-        await tester.pumpWidget(buildTestWidget(
-          onNavigate: (route) => navigatedTo = route,
-        ));
+        await tester.pumpWidget(
+          buildTestWidget(onNavigate: (route) => navigatedTo = route),
+        );
         await tester.pumpAndSettle();
 
         await tester.tap(find.text('Get Started'));
@@ -235,9 +234,9 @@ void main() {
       testWidgets('Sign In link calls onSignIn callback', (tester) async {
         String? navigatedTo;
 
-        await tester.pumpWidget(buildTestWidget(
-          onNavigate: (route) => navigatedTo = route,
-        ));
+        await tester.pumpWidget(
+          buildTestWidget(onNavigate: (route) => navigatedTo = route),
+        );
         await tester.pumpAndSettle();
 
         await tester.tap(find.text('Already have an account? Sign In'));
@@ -248,7 +247,9 @@ void main() {
     });
 
     group('persistence', () {
-      testWidgets('saves current page to provider when swiping', (tester) async {
+      testWidgets('saves current page to provider when swiping', (
+        tester,
+      ) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
 
@@ -257,7 +258,9 @@ void main() {
         await tester.pumpAndSettle();
 
         // Verify the page was saved
-        final captured = verify(() => mockBox.put('status', captureAny())).captured;
+        final captured = verify(
+          () => mockBox.put('status', captureAny()),
+        ).captured;
         expect(captured, isNotEmpty);
         final savedStatus = captured.last as OnboardingStatus;
         expect(savedStatus.currentPage, equals(1));
@@ -265,9 +268,9 @@ void main() {
 
       testWidgets('restores saved page on mount', (tester) async {
         // Setup mock to return saved page
-        when(() => mockBox.get('status')).thenReturn(
-          const OnboardingStatus(currentPage: 2),
-        );
+        when(
+          () => mockBox.get('status'),
+        ).thenReturn(const OnboardingStatus(currentPage: 2));
 
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();
@@ -283,10 +286,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Verify skip button is accessible (may find multiple semantic nodes)
-        expect(
-          find.bySemanticsLabel('Skip'),
-          findsWidgets,
-        );
+        expect(find.bySemanticsLabel('Skip'), findsWidgets);
       });
 
       testWidgets('page content is accessible', (tester) async {
@@ -294,10 +294,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Verify page title is readable
-        expect(
-          find.text('Your AI Repair Partner'),
-          findsOneWidget,
-        );
+        expect(find.text('Your AI Repair Partner'), findsOneWidget);
       });
     });
   });

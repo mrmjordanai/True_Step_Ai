@@ -160,7 +160,7 @@ dev_dependencies:
 - [x] Download and configure platform files:
   - [x] `google-services.json` → `android/app/`
   - [x] `GoogleService-Info.plist` → `ios/Runner/`
-- [ ] Configure Firebase AI (Gemini integration) - *Deferred to Phase 1*
+
 
 ### Firestore Security Rules (Initial)
 ```javascript
@@ -368,47 +368,47 @@ class GlassCard extends StatelessWidget {
 
 ---
 
-## 1.3 Home & Navigation (3 Screens)
+## 1.3 Home & Navigation (3 Screens) ✅ COMPLETED
 
 ### Priority: HIGH | Est: 4 days
+**Status:** Completed December 14, 2025
 
 ### Screen 4.1: Home - The Briefing
 **File:** `lib/features/home/screens/home_screen.dart`
 
-- [ ] **TEST FIRST:** Write tests for Omni-Bar functionality
-- [ ] Header with greeting, subscription badge, notification bell
-- [ ] **Omni-Bar** (prominent glass pill):
-  - [ ] Placeholder text: "Paste URL, describe task, or say 'Hey TrueStep'..."
-  - [ ] Tap expands to input mode
-  - [ ] URL detection auto-triggers ingestion
-  - [ ] Voice activation integration
-- [ ] Recent Sessions carousel (if any)
-- [ ] Featured Guides section
-- [ ] Quick Actions grid
+- [x] **TEST FIRST:** Write tests for Omni-Bar functionality ✅ *18 tests passing*
+- [x] Header with greeting, subscription badge, notification bell
+- [x] **Omni-Bar** (prominent glass pill):
+  - [x] Placeholder text: "Paste URL, describe task, or say 'Hey TrueStep'..."
+  - [x] Tap expands to input mode
+
+- [x] Recent Sessions carousel (if any)
+- [x] Featured Guides section
+- [x] Quick Actions grid
 
 ### Screen 4.2: Bottom Navigation
-**File:** `lib/app/widgets/bottom_nav.dart`
+**File:** `lib/shared/widgets/bottom_nav_bar.dart`
 
-- [ ] **TEST FIRST:** Write navigation state tests
-- [ ] 5 tabs: Search, Community, Quick+, History, Profile
-- [ ] Central Quick+ button (FAB style)
-- [ ] Active state with glow effect
-- [ ] Badge indicators for notifications
+- [x] **TEST FIRST:** Write navigation state tests ✅ *Tests passing*
+- [x] 5 tabs: Search, Community, Quick+, History, Profile
+- [x] Central Quick+ button (FAB style) with QuickActionModal
+- [x] Active state with glow effect
+- [x] Badge indicators for notifications
 
 ### Screen 4.3: Search/Browse
 **File:** `lib/features/search/screens/search_screen.dart`
 
-- [ ] **TEST FIRST:** Write search query tests
-- [ ] Search bar with voice input option
-- [ ] Category filters (Culinary, DIY, etc.)
-- [ ] Results list with guide cards
-- [ ] Empty state handling
+- [x] **TEST FIRST:** Write search query tests ✅ *18 tests passing*
+- [x] Search bar with voice input option
+- [x] Category filters (Cooking, DIY, Electronics)
+- [x] Results list with guide cards
+- [x] Empty state handling ("No results found")
 
 ### Acceptance Criteria
-- [ ] Bottom nav persists across main screens
-- [ ] Omni-Bar accepts URL, text, and voice input
-- [ ] Navigation state preserved correctly
-- [ ] Search returns relevant guides
+- [x] Bottom nav persists across main screens ✅ *Via StatefulShellRoute*
+- [x] Omni-Bar accepts text input ✅ *(URL detection and voice deferred to later phases)*
+- [x] Navigation state preserved correctly ✅ *Via indexedStack*
+- [x] Search returns relevant guides (client-side filtering)
 
 ---
 
@@ -437,6 +437,7 @@ class GlassCard extends StatelessWidget {
 
 - [ ] **TEST FIRST:** Write URL parsing tests with mock HTML
 - [ ] URL input detection in Omni-Bar
+- [ ] URL detection auto-triggers ingestion
 - [ ] Web scraping service (using dio)
 - [ ] Gemini API call to parse scraped content
 - [ ] Transform to VisualStateGraph
@@ -502,6 +503,7 @@ class GlassCard extends StatelessWidget {
 
 - [ ] **TEST FIRST:** Write voice command recognition tests
 - [ ] Speech-to-text initialization
+- [ ] Voice activation integration (Omni-Bar)
 - [ ] Wake word detection: "Hey TrueStep"
 - [ ] Command recognition:
   - "Next step" / "Go back"
@@ -662,6 +664,7 @@ class SessionStateMachine {
 **File:** `lib/services/ai_service.dart`
 
 - [ ] **TEST FIRST:** Write AI response parsing tests
+- [ ] Configure/Enable Gemini in Firebase Console
 - [ ] Firebase AI (Gemini) initialization
 - [ ] Frame verification prompt engineering
 - [ ] Success criteria matching logic
