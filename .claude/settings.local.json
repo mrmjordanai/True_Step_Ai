@@ -30,7 +30,10 @@
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" auth login --web --git-protocol https)",
       "Bash(mkdir -p:*)",
       "Bash(flutter devices:*)",
-      "Bash(flutterfire:*)"
+      "Bash(flutterfire:*)",
+      "Bash(xargs:*)",
+      "Bash(flutter pub:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

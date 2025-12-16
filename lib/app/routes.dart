@@ -11,7 +11,11 @@ import '../features/onboarding/screens/first_task_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/home/widgets/quick_action_modal.dart';
 import '../features/search/screens/search_screen.dart';
+import '../features/session/screens/guide_preview_screen.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
+import '../shared/providers/ingestion_provider.dart';
+import '../services/ingestion_service.dart';
+import '../core/models/guide.dart';
 
 // ============================================
 // ROUTE PATHS
@@ -92,17 +96,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.home,
                 name: 'home',
-                builder: (context, state) => HomeScreen(
-                  onNotificationTap: () {
-                    // TODO: Navigate to notifications
-                  },
-                  onOmniBarTap: () {
-                    // TODO: Open omni-bar input
-                  },
-                  onQuickAction: (action) {
-                    // TODO: Handle quick actions
-                  },
-                ),
+                builder: (context, state) => const _HomeScreenWrapper(),
               ),
             ],
           ),
@@ -208,10 +202,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.sessionPreview,
         name: 'sessionPreview',
         builder: (context, state) {
+          // Guide is passed via extra parameter from ingestion flow
+          final guide = state.extra as Guide?;
+          if (guide != null) {
+            return GuidePreviewScreen(
+              guide: guide,
+              onStartSession: () {
+                // TODO: Navigate to calibration screen (Phase 1.6)
+                context.push(AppRoutes.sessionCalibration);
+              },
+              onBack: () => context.pop(),
+            );
+          }
+          // Fallback if no guide was passed (e.g., deep link without data)
           final guideId = state.pathParameters['guideId'] ?? 'unknown';
           return _PlaceholderScreen(
-            title: 'Session Preview',
-            subtitle: 'Guide: $guideId',
+            title: 'Guide Not Found',
+            subtitle: 'Guide ID: $guideId',
+            isError: true,
           );
         },
       ),
@@ -469,6 +477,102 @@ class MainNavigationShell extends StatelessWidget {
         },
         notificationCount: 0, // TODO: Get from provider
       ),
+    );
+  }
+}
+
+// ============================================
+// HOME SCREEN WRAPPER (with ingestion handling)
+// ============================================
+
+/// Wrapper for HomeScreen that handles ingestion flow
+class _HomeScreenWrapper extends ConsumerStatefulWidget {
+  const _HomeScreenWrapper();
+
+  @override
+  ConsumerState<_HomeScreenWrapper> createState() => _HomeScreenWrapperState();
+}
+
+class _HomeScreenWrapperState extends ConsumerState<_HomeScreenWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the ingestion service
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(ingestionServiceProvider).initialize();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Listen to ingestion state changes
+    ref.listen<IngestionState>(ingestionNotifierProvider, (previous, next) {
+      if (next.status == IngestionStatus.success && next.guide != null) {
+        // Navigate to guide preview on success
+        final guide = next.guide!;
+        context.push(
+          AppRoutes.sessionPreviewPath(guide.guideId),
+          extra: guide,
+        );
+        // Reset ingestion state
+        ref.read(ingestionNotifierProvider.notifier).reset();
+      } else if (next.status == IngestionStatus.error && next.error != null) {
+        // Show error snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!.message),
+            backgroundColor: TrueStepColors.interventionRed,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        // Clear error
+        ref.read(ingestionNotifierProvider.notifier).clearError();
+      }
+    });
+
+    final ingestionState = ref.watch(ingestionNotifierProvider);
+
+    return Stack(
+      children: [
+        HomeScreen(
+          onNotificationTap: () {
+            // TODO: Navigate to notifications
+          },
+          onOmniBarSubmit: (input) {
+            // Trigger ingestion
+            ref.read(ingestionNotifierProvider.notifier).ingest(input);
+          },
+          onVoiceTap: () {
+            // TODO: Activate voice input
+          },
+          onQuickAction: (action) {
+            // TODO: Handle quick actions
+          },
+        ),
+        // Show loading overlay when ingesting
+        if (ingestionState.isLoading)
+          Container(
+            color: Colors.black54,
+            child: const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    color: TrueStepColors.sentinelGreen,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Analyzing...',
+                    style: TextStyle(
+                      color: TrueStepColors.textPrimary,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

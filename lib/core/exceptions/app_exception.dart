@@ -341,3 +341,155 @@ class ValidationException extends AppException {
     );
   }
 }
+
+/// Voice/speech-related exceptions
+///
+/// Thrown when speech-to-text or text-to-speech operations fail.
+class VoiceException extends AppException {
+  const VoiceException(
+    super.message, {
+    super.code,
+    super.originalError,
+    super.stackTrace,
+  });
+
+  /// Speech recognition not available on device
+  factory VoiceException.sttNotAvailable() {
+    return const VoiceException(
+      'Speech recognition is not available on this device.',
+      code: 'stt_not_available',
+    );
+  }
+
+  /// Speech recognition permission denied
+  factory VoiceException.sttPermissionDenied() {
+    return const VoiceException(
+      'Microphone permission is required for voice commands.',
+      code: 'stt_permission_denied',
+    );
+  }
+
+  /// Speech recognition failed to start
+  factory VoiceException.sttStartFailed([String? details]) {
+    return VoiceException(
+      details ?? 'Failed to start speech recognition.',
+      code: 'stt_start_failed',
+    );
+  }
+
+  /// Speech recognition error during listening
+  factory VoiceException.sttListenError([String? details]) {
+    return VoiceException(
+      details ?? 'An error occurred while listening.',
+      code: 'stt_listen_error',
+    );
+  }
+
+  /// Text-to-speech not available on device
+  factory VoiceException.ttsNotAvailable() {
+    return const VoiceException(
+      'Text-to-speech is not available on this device.',
+      code: 'tts_not_available',
+    );
+  }
+
+  /// Text-to-speech initialization failed
+  factory VoiceException.ttsInitFailed([String? details]) {
+    return VoiceException(
+      details ?? 'Failed to initialize text-to-speech.',
+      code: 'tts_init_failed',
+    );
+  }
+
+  /// Text-to-speech failed to speak
+  factory VoiceException.ttsSpeakFailed([String? details]) {
+    return VoiceException(
+      details ?? 'Failed to speak text.',
+      code: 'tts_speak_failed',
+    );
+  }
+
+  /// Voice service not initialized
+  factory VoiceException.notInitialized() {
+    return const VoiceException(
+      'Voice service has not been initialized.',
+      code: 'not_initialized',
+    );
+  }
+}
+
+/// Guide ingestion exceptions
+///
+/// Thrown when parsing URLs or text into guides fails.
+class IngestionException extends AppException {
+  /// The URL that failed to be ingested (if applicable)
+  final String? url;
+
+  const IngestionException(
+    super.message, {
+    this.url,
+    super.code,
+    super.originalError,
+    super.stackTrace,
+  });
+
+  /// Invalid or malformed URL
+  factory IngestionException.invalidUrl([String? url]) {
+    return IngestionException(
+      'The URL provided is invalid or malformed.',
+      url: url,
+      code: 'invalid_url',
+    );
+  }
+
+  /// Failed to fetch content from URL
+  factory IngestionException.fetchFailed([String? url, String? details]) {
+    return IngestionException(
+      details ?? 'Failed to fetch content from URL. Please check your connection.',
+      url: url,
+      code: 'fetch_failed',
+    );
+  }
+
+  /// Content could not be parsed into a guide
+  factory IngestionException.parsingFailed([String? details]) {
+    return IngestionException(
+      details ?? 'Could not parse content into a guide. The format may not be supported.',
+      code: 'parsing_failed',
+    );
+  }
+
+  /// AI service error during content processing
+  factory IngestionException.aiError([String? details]) {
+    return IngestionException(
+      details ?? 'AI service encountered an error while processing. Please try again.',
+      code: 'ai_error',
+    );
+  }
+
+  /// Website not supported for ingestion
+  factory IngestionException.unsupportedSite([String? url]) {
+    return IngestionException(
+      'This website is not currently supported for automatic guide extraction.',
+      url: url,
+      code: 'unsupported_site',
+    );
+  }
+
+  /// No valid content found on page
+  factory IngestionException.noContent([String? url]) {
+    return IngestionException(
+      'No recipe or guide content was found on this page.',
+      url: url,
+      code: 'no_content',
+    );
+  }
+
+  /// Rate limit exceeded
+  factory IngestionException.rateLimited() {
+    return const IngestionException(
+      'Too many ingestion requests. Please wait a moment before trying again.',
+      code: 'rate_limited',
+    );
+  }
+}

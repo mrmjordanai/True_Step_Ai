@@ -4,6 +4,10 @@ import 'auth_service.dart';
 import 'storage_service.dart';
 import 'permission_service.dart';
 
+// Re-export the camera and voice providers from feature folders
+export '../features/session/providers/camera_provider.dart';
+export '../features/session/providers/voice_provider.dart';
+
 /// Service providers for dependency injection via Riverpod
 ///
 /// All services are provided as singletons and initialized lazily.
