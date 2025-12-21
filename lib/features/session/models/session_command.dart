@@ -26,6 +26,9 @@ enum SessionCommand {
 
   /// Show available commands or help
   help,
+
+  /// Skip the current step (usually from intervention)
+  skip,
 }
 
 /// Maps voice command phrases to [SessionCommand] values
@@ -96,6 +99,13 @@ const Map<String, SessionCommand> voiceCommands = {
   'commands': SessionCommand.help,
   'what can i say': SessionCommand.help,
   'options': SessionCommand.help,
+
+  // Skip variations
+  'skip': SessionCommand.skip,
+  'skip step': SessionCommand.skip,
+  'skip this': SessionCommand.skip,
+  'skip it': SessionCommand.skip,
+  'move on': SessionCommand.skip,
 };
 
 /// Utility class for parsing voice commands
@@ -243,6 +253,8 @@ extension SessionCommandExtension on SessionCommand {
         return 'Stop';
       case SessionCommand.help:
         return 'Help';
+      case SessionCommand.skip:
+        return 'Skip';
     }
   }
 
@@ -265,6 +277,8 @@ extension SessionCommandExtension on SessionCommand {
         return 'Say "stop" or "cancel"';
       case SessionCommand.help:
         return 'Say "help" or "commands"';
+      case SessionCommand.skip:
+        return 'Say "skip" or "move on"';
     }
   }
 }
