@@ -1,46 +1,54 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/models/onboarding_status.dart';
+
+part 'onboarding_provider.g.dart';
 
 /// Hive box name for onboarding data
 const String onboardingBoxName = 'onboarding';
 
 /// Provider for the Hive box storing onboarding status
 /// This can be overridden in tests with a mock box
-final onboardingBoxProvider = Provider<Box<OnboardingStatus>>((ref) {
+@Riverpod(keepAlive: true)
+Box<OnboardingStatus> onboardingBox(OnboardingBoxRef ref) {
   throw UnimplementedError(
     'onboardingBoxProvider must be overridden with an open Hive box',
   );
-});
+}
 
 /// Provider for the current onboarding status
 /// Reads from Hive and returns initial status if not found
-final onboardingStatusProvider = Provider<OnboardingStatus>((ref) {
+@riverpod
+OnboardingStatus onboardingStatus(OnboardingStatusRef ref) {
   final box = ref.watch(onboardingBoxProvider);
   return box.get('status') ?? OnboardingStatus.initial();
-});
+}
 
 /// Provider that returns whether onboarding has been completed
-final hasCompletedOnboardingProvider = Provider<bool>((ref) {
+@riverpod
+bool hasCompletedOnboarding(HasCompletedOnboardingRef ref) {
   final status = ref.watch(onboardingStatusProvider);
   return status.hasCompletedOnboarding;
-});
+}
 
 /// Provider for the current page in the welcome carousel
-final currentPageProvider = Provider<int>((ref) {
+@riverpod
+int currentPage(CurrentPageRef ref) {
   final status = ref.watch(onboardingStatusProvider);
   return status.currentPage;
-});
+}
 
 /// Provider for the selected first task option
-final selectedFirstTaskProvider = Provider<FirstTaskOption?>((ref) {
+@riverpod
+FirstTaskOption? selectedFirstTask(SelectedFirstTaskRef ref) {
   final status = ref.watch(onboardingStatusProvider);
   return FirstTaskOption.fromId(status.selectedFirstTask);
-});
+}
 
 /// Notifier for managing onboarding state changes
-class OnboardingNotifier extends Notifier<OnboardingStatus> {
+@Riverpod(keepAlive: true)
+class OnboardingNotifier extends _$OnboardingNotifier {
   @override
   OnboardingStatus build() {
     final box = ref.watch(onboardingBoxProvider);
@@ -80,12 +88,6 @@ class OnboardingNotifier extends Notifier<OnboardingStatus> {
     _box.put('status', newStatus);
   }
 }
-
-/// Provider for the onboarding notifier
-final onboardingNotifierProvider =
-    NotifierProvider<OnboardingNotifier, OnboardingStatus>(
-  OnboardingNotifier.new,
-);
 
 /// Helper function to initialize onboarding Hive box
 /// Call this in main.dart before runApp

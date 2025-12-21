@@ -1,3 +1,8 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'session_state.freezed.dart';
+part 'session_state.g.dart';
+
 /// Session state enums and models for TrueStep
 ///
 /// Defines the Sentinel (Traffic Light) state machine and session lifecycle.
@@ -36,33 +41,29 @@ enum SessionPhase {
 }
 
 /// Result of an AI verification attempt
-class VerificationResult {
-  /// Whether the step was verified as complete
-  final bool verified;
+@freezed
+class VerificationResult with _$VerificationResult {
+  const VerificationResult._();
 
-  /// Confidence score from 0.0 to 1.0
-  final double confidence;
+  const factory VerificationResult({
+    /// Whether the step was verified as complete
+    required bool verified,
 
-  /// Issue description if not verified
-  final String? issue;
+    /// Confidence score from 0.0 to 1.0
+    required double confidence,
 
-  /// Whether a safety alert was triggered
-  final bool safetyAlert;
+    /// Issue description if not verified
+    String? issue,
 
-  /// Suggestion for fixing the issue
-  final String? suggestion;
+    /// Whether a safety alert was triggered
+    @Default(false) bool safetyAlert,
 
-  /// Timestamp of the verification
-  final DateTime timestamp;
+    /// Suggestion for fixing the issue
+    String? suggestion,
 
-  const VerificationResult({
-    required this.verified,
-    required this.confidence,
-    this.issue,
-    this.safetyAlert = false,
-    this.suggestion,
-    required this.timestamp,
-  });
+    /// Timestamp of the verification
+    required DateTime timestamp,
+  }) = _VerificationResult;
 
   /// Create a successful verification result
   factory VerificationResult.success({
@@ -95,66 +96,6 @@ class VerificationResult {
     );
   }
 
-  /// Create a copy with modified fields
-  VerificationResult copyWith({
-    bool? verified,
-    double? confidence,
-    String? issue,
-    bool? safetyAlert,
-    String? suggestion,
-    DateTime? timestamp,
-  }) {
-    return VerificationResult(
-      verified: verified ?? this.verified,
-      confidence: confidence ?? this.confidence,
-      issue: issue ?? this.issue,
-      safetyAlert: safetyAlert ?? this.safetyAlert,
-      suggestion: suggestion ?? this.suggestion,
-      timestamp: timestamp ?? this.timestamp,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'verified': verified,
-      'confidence': confidence,
-      'issue': issue,
-      'safetyAlert': safetyAlert,
-      'suggestion': suggestion,
-      'timestamp': timestamp.toIso8601String(),
-    };
-  }
-
-  factory VerificationResult.fromJson(Map<String, dynamic> json) {
-    return VerificationResult(
-      verified: json['verified'] as bool,
-      confidence: (json['confidence'] as num).toDouble(),
-      issue: json['issue'] as String?,
-      safetyAlert: json['safetyAlert'] as bool? ?? false,
-      suggestion: json['suggestion'] as String?,
-      timestamp: DateTime.parse(json['timestamp'] as String),
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is VerificationResult &&
-        other.verified == verified &&
-        other.confidence == confidence &&
-        other.issue == issue &&
-        other.safetyAlert == safetyAlert &&
-        other.suggestion == suggestion;
-  }
-
-  @override
-  int get hashCode {
-    return Object.hash(verified, confidence, issue, safetyAlert, suggestion);
-  }
-
-  @override
-  String toString() {
-    return 'VerificationResult(verified: $verified, confidence: $confidence, '
-        'issue: $issue, safetyAlert: $safetyAlert)';
-  }
+  factory VerificationResult.fromJson(Map<String, dynamic> json) =>
+      _$VerificationResultFromJson(json);
 }

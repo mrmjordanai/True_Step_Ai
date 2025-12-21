@@ -1,60 +1,85 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../../core/models/guide.dart';
 import 'session_state.dart';
+
+part 'session_data.freezed.dart';
+part 'session_data.g.dart';
+
+/// Converter for Map<int, VerificationResult> with string keys in JSON
+class VerificationResultMapConverter
+    implements
+        JsonConverter<Map<int, VerificationResult>, Map<String, dynamic>> {
+  const VerificationResultMapConverter();
+
+  @override
+  Map<int, VerificationResult> fromJson(Map<String, dynamic> json) {
+    return json.map(
+      (k, v) => MapEntry(
+        int.parse(k),
+        VerificationResult.fromJson(v as Map<String, dynamic>),
+      ),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson(Map<int, VerificationResult> map) {
+    return map.map((k, v) => MapEntry(k.toString(), v.toJson()));
+  }
+}
 
 /// Complete session data including guide, progress, and results
 ///
 /// This is the main state object managed by SessionNotifier.
-class SessionData {
-  /// The guide being executed
-  final Guide guide;
+@freezed
+class SessionData with _$SessionData {
+  const SessionData._();
 
-  /// Current session lifecycle phase
-  final SessionPhase phase;
+  const factory SessionData({
+    /// The guide being executed
+    required Guide guide,
 
-  /// Traffic light state (only relevant when phase == active)
-  final SentinelState sentinelState;
+    /// Current session lifecycle phase
+    @Default(SessionPhase.calibrating) SessionPhase phase,
 
-  /// Current step index (0-based)
-  final int currentStepIndex;
+    /// Traffic light state (only relevant when phase == active)
+    @Default(SentinelState.watching) SentinelState sentinelState,
 
-  /// Total elapsed time in seconds
-  final int elapsedSeconds;
+    /// Current step index (0-based)
+    @Default(0) int currentStepIndex,
 
-  /// Per-step verification results (stepIndex -> result)
-  final Map<int, VerificationResult> stepResults;
+    /// Total elapsed time in seconds
+    @Default(0) int elapsedSeconds,
 
-  /// Number of interventions triggered during session
-  final int interventionCount;
+    /// Per-step verification results (stepIndex -> result)
+    @VerificationResultMapConverter()
+    @Default({})
+    Map<int, VerificationResult> stepResults,
 
-  /// Whether recording is active
-  final bool isRecording;
+    /// Number of interventions triggered during session
+    @Default(0) int interventionCount,
 
-  /// Current intervention message (when sentinelState == intervention)
-  final String? interventionMessage;
+    /// Whether recording is active
+    @Default(false) bool isRecording,
 
-  /// Timestamp when session started
-  final DateTime startTime;
+    /// Current intervention message (when sentinelState == intervention)
+    String? interventionMessage,
 
-  /// Whether calibration was skipped
-  final bool calibrationSkipped;
+    /// Timestamp when session started
+    required DateTime startTime,
 
-  /// Tools that have been checked off
-  final Set<String> checkedTools;
+    /// Whether calibration was skipped
+    @Default(false) bool calibrationSkipped,
 
-  const SessionData({
-    required this.guide,
-    this.phase = SessionPhase.calibrating,
-    this.sentinelState = SentinelState.watching,
-    this.currentStepIndex = 0,
-    this.elapsedSeconds = 0,
-    this.stepResults = const {},
-    this.interventionCount = 0,
-    this.isRecording = false,
-    this.interventionMessage,
-    required this.startTime,
-    this.calibrationSkipped = false,
-    this.checkedTools = const {},
-  });
+    /// Tools that have been checked off
+    @Default({}) Set<String> checkedTools,
+
+    /// Retry count for current step verification (resets on step advance)
+    @Default(0) int currentStepRetryCount,
+
+    /// Whether manual skip option should be shown (after max retries)
+    @Default(false) bool showManualSkipOption,
+  }) = _SessionData;
 
   /// Create initial session data for a guide
   factory SessionData.start(Guide guide) {
@@ -99,132 +124,64 @@ class SessionData {
     return requiredTools.every((tool) => checkedTools.contains(tool));
   }
 
-  /// Create a copy with modified fields
-  ///
-  /// To clear interventionMessage to null, set [clearInterventionMessage] to true.
-  SessionData copyWith({
-    Guide? guide,
-    SessionPhase? phase,
-    SentinelState? sentinelState,
-    int? currentStepIndex,
-    int? elapsedSeconds,
-    Map<int, VerificationResult>? stepResults,
-    int? interventionCount,
-    bool? isRecording,
-    String? interventionMessage,
-    bool clearInterventionMessage = false,
-    DateTime? startTime,
-    bool? calibrationSkipped,
-    Set<String>? checkedTools,
-  }) {
-    return SessionData(
-      guide: guide ?? this.guide,
-      phase: phase ?? this.phase,
-      sentinelState: sentinelState ?? this.sentinelState,
-      currentStepIndex: currentStepIndex ?? this.currentStepIndex,
-      elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
-      stepResults: stepResults ?? this.stepResults,
-      interventionCount: interventionCount ?? this.interventionCount,
-      isRecording: isRecording ?? this.isRecording,
-      interventionMessage: clearInterventionMessage
-          ? null
-          : (interventionMessage ?? this.interventionMessage),
-      startTime: startTime ?? this.startTime,
-      calibrationSkipped: calibrationSkipped ?? this.calibrationSkipped,
-      checkedTools: checkedTools ?? this.checkedTools,
-    );
-  }
-
   /// Create a copy with intervention message cleared
   SessionData clearIntervention() {
     return copyWith(
-      clearInterventionMessage: true,
+      interventionMessage: null,
       sentinelState: SentinelState.watching,
     );
   }
 
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is SessionData &&
-        other.guide == guide &&
-        other.phase == phase &&
-        other.sentinelState == sentinelState &&
-        other.currentStepIndex == currentStepIndex &&
-        other.elapsedSeconds == elapsedSeconds &&
-        other.interventionCount == interventionCount &&
-        other.isRecording == isRecording &&
-        other.interventionMessage == interventionMessage &&
-        other.calibrationSkipped == calibrationSkipped;
-  }
-
-  @override
-  int get hashCode {
-    return Object.hash(
-      guide,
-      phase,
-      sentinelState,
-      currentStepIndex,
-      elapsedSeconds,
-      interventionCount,
-      isRecording,
-      interventionMessage,
-      calibrationSkipped,
+  /// Create a copy with retry state reset
+  SessionData resetRetryState() {
+    return copyWith(
+      currentStepRetryCount: 0,
+      showManualSkipOption: false,
     );
   }
 
-  @override
-  String toString() {
-    return 'SessionData(phase: $phase, sentinel: $sentinelState, '
-        'step: ${currentStepIndex + 1}/${guide.steps.length}, '
-        'elapsed: ${elapsedSeconds}s)';
-  }
+  factory SessionData.fromJson(Map<String, dynamic> json) =>
+      _$SessionDataFromJson(json);
 }
 
 /// Summary of a completed session
-class SessionSummary {
-  /// The guide that was executed
-  final Guide guide;
+@freezed
+class SessionSummary with _$SessionSummary {
+  const SessionSummary._();
 
-  /// Total duration in seconds
-  final int totalDurationSeconds;
+  const factory SessionSummary({
+    /// The guide that was executed
+    required Guide guide,
 
-  /// Number of steps completed
-  final int stepsCompleted;
+    /// Total duration in seconds
+    required int totalDurationSeconds,
 
-  /// Total number of steps
-  final int totalSteps;
+    /// Number of steps completed
+    required int stepsCompleted,
 
-  /// Number of interventions triggered
-  final int interventionCount;
+    /// Total number of steps
+    required int totalSteps,
 
-  /// Average AI confidence score
-  final double averageConfidence;
+    /// Number of interventions triggered
+    required int interventionCount,
 
-  /// Whether session was completed (vs cancelled)
-  final bool wasCompleted;
+    /// Average AI confidence score
+    required double averageConfidence,
 
-  /// Session start time
-  final DateTime startTime;
+    /// Whether session was completed (vs cancelled)
+    required bool wasCompleted,
 
-  /// Session end time
-  final DateTime endTime;
+    /// Session start time
+    required DateTime startTime,
 
-  /// Per-step results
-  final Map<int, VerificationResult> stepResults;
+    /// Session end time
+    required DateTime endTime,
 
-  const SessionSummary({
-    required this.guide,
-    required this.totalDurationSeconds,
-    required this.stepsCompleted,
-    required this.totalSteps,
-    required this.interventionCount,
-    required this.averageConfidence,
-    required this.wasCompleted,
-    required this.startTime,
-    required this.endTime,
-    this.stepResults = const {},
-  });
+    /// Per-step results
+    @VerificationResultMapConverter()
+    @Default({})
+    Map<int, VerificationResult> stepResults,
+  }) = _SessionSummary;
 
   /// Create summary from session data
   factory SessionSummary.fromSession(SessionData session) {
@@ -257,11 +214,6 @@ class SessionSummary {
     return '${seconds}s';
   }
 
-  @override
-  String toString() {
-    return 'SessionSummary(completed: $wasCompleted, '
-        'steps: $stepsCompleted/$totalSteps, '
-        'duration: $formattedDuration, '
-        'interventions: $interventionCount)';
-  }
+  factory SessionSummary.fromJson(Map<String, dynamic> json) =>
+      _$SessionSummaryFromJson(json);
 }

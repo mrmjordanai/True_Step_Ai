@@ -1,8 +1,10 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/exceptions/app_exception.dart' as app_exceptions;
 import '../../../services/voice_service.dart';
 import '../models/session_command.dart';
+
+part 'voice_provider.g.dart';
 
 /// Status of the voice service
 enum VoiceStatus {
@@ -164,11 +166,19 @@ class VoiceState {
   );
 }
 
-/// Notifier for managing voice state
-class VoiceNotifier extends StateNotifier<VoiceState> {
-  final VoiceService _service;
+/// Provider for voice service (can be overridden in tests)
+@riverpod
+VoiceService voiceService(VoiceServiceRef ref) {
+  return VoiceService();
+}
 
-  VoiceNotifier(this._service) : super(const VoiceState.uninitialized());
+/// Notifier for managing voice state
+@Riverpod(keepAlive: true)
+class VoiceNotifier extends _$VoiceNotifier {
+  VoiceService get _service => ref.read(voiceServiceProvider);
+
+  @override
+  VoiceState build() => const VoiceState.uninitialized();
 
   /// Initialize the voice service
   Future<void> initialize() async {
@@ -295,21 +305,9 @@ class VoiceNotifier extends StateNotifier<VoiceState> {
   }
 }
 
-/// Provider for voice service (can be overridden in tests)
-final voiceServiceProvider = Provider<VoiceService>((ref) {
-  return VoiceService();
-});
-
-/// Provider for VoiceNotifier
-final voiceNotifierProvider = StateNotifierProvider<VoiceNotifier, VoiceState>((
-  ref,
-) {
-  final service = ref.watch(voiceServiceProvider);
-  return VoiceNotifier(service);
-});
-
 /// Provider for voice transcript stream
-final voiceTranscriptStreamProvider = StreamProvider<VoiceTranscript>((ref) {
+@riverpod
+Stream<VoiceTranscript> voiceTranscriptStream(VoiceTranscriptStreamRef ref) {
   final service = ref.watch(voiceServiceProvider);
   return service.transcriptStream;
-});
+}

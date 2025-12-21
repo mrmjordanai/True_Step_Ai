@@ -1,8 +1,10 @@
 import 'package:camera/camera.dart' hide ImageFormat;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/exceptions/app_exception.dart' as app_exceptions;
 import '../../../services/camera_service.dart';
+
+part 'camera_provider.g.dart';
 
 /// Status of the camera
 enum CameraStatus {
@@ -144,11 +146,19 @@ class CameraState {
       Object.hash(status, isCapturing, isTorchOn, isPaused, currentLens, error);
 }
 
-/// Notifier for managing camera state
-class CameraNotifier extends StateNotifier<CameraState> {
-  final CameraService _service;
+/// Provider for camera service (can be overridden in tests)
+@riverpod
+CameraService cameraService(CameraServiceRef ref) {
+  return CameraService();
+}
 
-  CameraNotifier(this._service) : super(const CameraState.uninitialized());
+/// Notifier for managing camera state
+@Riverpod(keepAlive: true)
+class CameraNotifier extends _$CameraNotifier {
+  CameraService get _service => ref.read(cameraServiceProvider);
+
+  @override
+  CameraState build() => const CameraState.uninitialized();
 
   /// Initialize the camera
   Future<void> initialize() async {
@@ -260,20 +270,9 @@ class CameraNotifier extends StateNotifier<CameraState> {
   }
 }
 
-/// Provider for camera service (can be overridden in tests)
-final cameraServiceProvider = Provider<CameraService>((ref) {
-  return CameraService();
-});
-
-/// Provider for CameraNotifier
-final cameraNotifierProvider =
-    StateNotifierProvider<CameraNotifier, CameraState>((ref) {
-      final service = ref.watch(cameraServiceProvider);
-      return CameraNotifier(service);
-    });
-
 /// Provider for camera frame stream
-final cameraFrameStreamProvider = StreamProvider<CameraFrame>((ref) {
+@riverpod
+Stream<CameraFrame> cameraFrameStream(CameraFrameStreamRef ref) {
   final service = ref.watch(cameraServiceProvider);
   return service.frameStream;
-});
+}

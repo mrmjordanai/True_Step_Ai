@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
 import '../exceptions/app_exception.dart';
@@ -197,13 +198,22 @@ class ErrorHandler {
       }
       if (stackTrace != null) {
         debugPrint('│ Stack trace:');
-        debugPrint('│ ${stackTrace.toString().split('\n').take(5).join('\n│ ')}');
+        debugPrint(
+          '│ ${stackTrace.toString().split('\n').take(5).join('\n│ ')}',
+        );
       }
       debugPrint('└─────────────────────────────────────────────');
     }
 
-    // In production, could send to analytics/crash reporting
-    // TODO: Add Crashlytics or similar in production
+    // Report to Firebase Crashlytics in release mode
+    if (!kDebugMode) {
+      FirebaseCrashlytics.instance.recordError(
+        exception.originalError ?? exception,
+        stackTrace,
+        reason: exception.message,
+        fatal: false,
+      );
+    }
   }
 
   /// Handle Flutter framework errors
@@ -211,8 +221,7 @@ class ErrorHandler {
     if (kDebugMode) {
       FlutterError.dumpErrorToConsole(details);
     } else {
-      // In production, report to crash reporting service
-      // TODO: Add Crashlytics reporting
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
     }
   }
 

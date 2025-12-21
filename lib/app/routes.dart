@@ -12,6 +12,12 @@ import '../features/home/screens/home_screen.dart';
 import '../features/home/widgets/quick_action_modal.dart';
 import '../features/search/screens/search_screen.dart';
 import '../features/session/screens/guide_preview_screen.dart';
+import '../features/session/screens/calibration_screen.dart';
+import '../features/session/screens/tool_audit_screen.dart';
+import '../features/session/screens/active_session_screen.dart';
+import '../features/session/screens/session_completion_screen.dart';
+import '../features/session/models/session_data.dart';
+import '../features/session/providers/session_provider.dart';
 import '../shared/widgets/bottom_nav_bar.dart';
 import '../shared/providers/ingestion_provider.dart';
 import '../services/ingestion_service.dart';
@@ -68,10 +74,13 @@ class AppRoutes {
   static const String subscription = '/subscription';
 
   // Helper methods for building paths with parameters
-  static String sessionPreviewPath(String guideId) => '/session/preview/$guideId';
+  static String sessionPreviewPath(String guideId) =>
+      '/session/preview/$guideId';
   static String historyDetailPath(String sessionId) => '/history/$sessionId';
-  static String communityVideoPath(String videoId) => '/community/video/$videoId';
-  static String communityCreatorPath(String creatorId) => '/community/creator/$creatorId';
+  static String communityVideoPath(String videoId) =>
+      '/community/video/$videoId';
+  static String communityCreatorPath(String creatorId) =>
+      '/community/creator/$creatorId';
 }
 
 // ============================================
@@ -108,13 +117,19 @@ final routerProvider = Provider<GoRouter>((ref) {
                 name: 'search',
                 builder: (context, state) => SearchScreen(
                   onVoiceTap: () {
-                    // TODO: Activate voice search
+                    // Voice search deferred to Phase 2
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Voice search coming soon!'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
                   },
                   onSearch: (query) {
-                    // TODO: Perform search
+                    // Search handled internally by SearchScreen with mock data
                   },
                   onCategorySelected: (category) {
-                    // TODO: Filter by category
+                    // Category filtering handled internally by SearchScreen
                   },
                   onGuideTap: (guideId) {
                     context.go(AppRoutes.sessionPreviewPath(guideId));
@@ -185,16 +200,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.accountSetup,
         name: 'accountSetup',
-        builder: (context, state) => AccountScreen(
-          onContinue: () => context.go(AppRoutes.firstTask),
-        ),
+        builder: (context, state) =>
+            AccountScreen(onContinue: () => context.go(AppRoutes.firstTask)),
       ),
       GoRoute(
         path: AppRoutes.firstTask,
         name: 'firstTask',
-        builder: (context, state) => FirstTaskScreen(
-          onComplete: () => context.go(AppRoutes.home),
-        ),
+        builder: (context, state) =>
+            FirstTaskScreen(onComplete: () => context.go(AppRoutes.home)),
       ),
 
       // ========== SESSION ==========
@@ -205,13 +218,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           // Guide is passed via extra parameter from ingestion flow
           final guide = state.extra as Guide?;
           if (guide != null) {
-            return GuidePreviewScreen(
-              guide: guide,
-              onStartSession: () {
-                // TODO: Navigate to calibration screen (Phase 1.6)
-                context.push(AppRoutes.sessionCalibration);
-              },
-              onBack: () => context.pop(),
+            return Consumer(
+              builder: (context, ref, _) => GuidePreviewScreen(
+                guide: guide,
+                onStartSession: () {
+                  // Start the session with the guide
+                  ref.read(sessionProvider.notifier).startSession(guide);
+                  context.go(AppRoutes.sessionCalibration);
+                },
+                onBack: () => context.pop(),
+              ),
             );
           }
           // Fallback if no guide was passed (e.g., deep link without data)
@@ -226,34 +242,34 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.sessionCalibration,
         name: 'sessionCalibration',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'Calibration',
-          subtitle: 'Camera setup',
-        ),
+        builder: (context, state) => const CalibrationScreen(),
       ),
       GoRoute(
         path: AppRoutes.sessionToolAudit,
         name: 'sessionToolAudit',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'Tool Audit',
-          subtitle: 'Verify your tools',
-        ),
+        builder: (context, state) => const ToolAuditScreen(),
       ),
       GoRoute(
         path: AppRoutes.sessionActive,
         name: 'sessionActive',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'Active Session',
-          subtitle: 'In progress',
-        ),
+        builder: (context, state) => const ActiveSessionScreen(),
       ),
       GoRoute(
         path: AppRoutes.sessionComplete,
         name: 'sessionComplete',
-        builder: (context, state) => const _PlaceholderScreen(
-          title: 'Complete!',
-          subtitle: 'Well done',
-        ),
+        builder: (context, state) {
+          // Get summary from extra parameter
+          final summary = state.extra as SessionSummary?;
+          if (summary != null) {
+            return SessionCompletionScreen(summary: summary);
+          }
+          // Fallback if no summary provided
+          return const _PlaceholderScreen(
+            title: 'Session Complete',
+            subtitle: 'No summary available',
+            isError: true,
+          );
+        },
       ),
 
       // ========== COMMUNITY SUB-ROUTES ==========
@@ -361,18 +377,26 @@ class _PlaceholderScreen extends StatelessWidget {
                     height: 80,
                     decoration: BoxDecoration(
                       color: isError
-                          ? TrueStepColors.interventionRed.withValues(alpha: 0.2)
+                          ? TrueStepColors.interventionRed.withValues(
+                              alpha: 0.2,
+                            )
                           : TrueStepColors.sentinelGreen.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: isError
-                            ? TrueStepColors.interventionRed.withValues(alpha: 0.5)
-                            : TrueStepColors.sentinelGreen.withValues(alpha: 0.5),
+                            ? TrueStepColors.interventionRed.withValues(
+                                alpha: 0.5,
+                              )
+                            : TrueStepColors.sentinelGreen.withValues(
+                                alpha: 0.5,
+                              ),
                         width: 2,
                       ),
                     ),
                     child: Icon(
-                      isError ? Icons.error_outline : Icons.check_circle_outline,
+                      isError
+                          ? Icons.error_outline
+                          : Icons.check_circle_outline,
                       size: 40,
                       color: isError
                           ? TrueStepColors.interventionRed
@@ -406,9 +430,7 @@ class _PlaceholderScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: TrueStepColors.glassSurface,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: TrueStepColors.glassBorder,
-                      ),
+                      border: Border.all(color: TrueStepColors.glassBorder),
                     ),
                     child: Text(
                       'Phase 0 Complete',
@@ -433,10 +455,7 @@ class _PlaceholderScreen extends StatelessWidget {
 
 /// Shell widget that wraps main screens with bottom navigation
 class MainNavigationShell extends StatelessWidget {
-  const MainNavigationShell({
-    super.key,
-    required this.navigationShell,
-  });
+  const MainNavigationShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
@@ -460,22 +479,25 @@ class MainNavigationShell extends StatelessWidget {
               // Handle the selected action
               switch (action) {
                 case QuickAction.pasteUrl:
-                  // TODO: Open URL paste dialog or navigate to search
-                  break;
                 case QuickAction.describeTask:
-                  // TODO: Navigate to home and focus OmniBar
+                  // Navigate to home tab (where OmniBar is)
+                  navigationShell.goBranch(0, initialLocation: true);
                   break;
                 case QuickAction.voiceInput:
-                  // TODO: Activate voice input
-                  break;
                 case QuickAction.scanQr:
-                  // TODO: Open QR scanner
+                  // Deferred to Phase 2
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Coming soon!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
                   break;
               }
             },
           );
         },
-        notificationCount: 0, // TODO: Get from provider
+        notificationCount: 0, // Notifications deferred to Phase 2
       ),
     );
   }
@@ -510,10 +532,7 @@ class _HomeScreenWrapperState extends ConsumerState<_HomeScreenWrapper> {
       if (next.status == IngestionStatus.success && next.guide != null) {
         // Navigate to guide preview on success
         final guide = next.guide!;
-        context.push(
-          AppRoutes.sessionPreviewPath(guide.guideId),
-          extra: guide,
-        );
+        context.push(AppRoutes.sessionPreviewPath(guide.guideId), extra: guide);
         // Reset ingestion state
         ref.read(ingestionNotifierProvider.notifier).reset();
       } else if (next.status == IngestionStatus.error && next.error != null) {
@@ -536,17 +555,30 @@ class _HomeScreenWrapperState extends ConsumerState<_HomeScreenWrapper> {
       children: [
         HomeScreen(
           onNotificationTap: () {
-            // TODO: Navigate to notifications
+            // Notifications deferred to Phase 2
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Notifications coming soon!'),
+                duration: Duration(seconds: 2),
+              ),
+            );
           },
           onOmniBarSubmit: (input) {
             // Trigger ingestion
             ref.read(ingestionNotifierProvider.notifier).ingest(input);
           },
           onVoiceTap: () {
-            // TODO: Activate voice input
+            // Voice input deferred to Phase 2
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Voice input coming soon!'),
+                duration: Duration(seconds: 2),
+              ),
+            );
           },
           onQuickAction: (action) {
-            // TODO: Handle quick actions
+            // Quick actions trigger OmniBar ingestion via the modal
+            // This callback is for inline quick actions on HomeScreen
           },
         ),
         // Show loading overlay when ingesting

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/spacing.dart';
 import '../../../core/constants/typography.dart';
@@ -302,7 +304,7 @@ class _CalibrationScreenState extends ConsumerState<CalibrationScreen> {
             onPressed: () {
               Navigator.of(context).pop();
               ref.read(sessionProvider.notifier).cancelSession();
-              Navigator.of(context).pop(); // Exit calibration screen
+              context.go(AppRoutes.home);
             },
             child: Text(
               'Exit',
@@ -315,14 +317,7 @@ class _CalibrationScreenState extends ConsumerState<CalibrationScreen> {
   }
 
   void _navigateToToolAudit() {
-    // TODO: Implement navigation to Tool Audit screen
-    // For now, this is a placeholder - will be wired via GoRouter
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Proceeding to Tool Audit...'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+    context.go(AppRoutes.sessionToolAudit);
   }
 }
 

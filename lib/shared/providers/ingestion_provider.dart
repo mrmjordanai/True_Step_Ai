@@ -1,8 +1,10 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/exceptions/app_exception.dart';
 import '../../core/models/guide.dart';
 import '../../services/ingestion_service.dart';
+
+part 'ingestion_provider.g.dart';
 
 /// Status of the ingestion process
 enum IngestionStatus {
@@ -75,13 +77,15 @@ class IngestionState {
 }
 
 /// Notifier for managing ingestion state
-class IngestionNotifier extends StateNotifier<IngestionState> {
-  final IngestionService _service;
-
+@Riverpod(keepAlive: true)
+class IngestionNotifier extends _$IngestionNotifier {
   /// Track the current request to cancel stale responses
   int _currentRequestId = 0;
 
-  IngestionNotifier(this._service) : super(const IngestionState.idle());
+  IngestionService get _service => ref.read(ingestionServiceProvider);
+
+  @override
+  IngestionState build() => const IngestionState.idle();
 
   /// Ingest content from user input
   ///
@@ -131,10 +135,3 @@ class IngestionNotifier extends StateNotifier<IngestionState> {
     }
   }
 }
-
-/// Provider for IngestionNotifier
-final ingestionNotifierProvider =
-    StateNotifierProvider<IngestionNotifier, IngestionState>((ref) {
-      final service = ref.watch(ingestionServiceProvider);
-      return IngestionNotifier(service);
-    });

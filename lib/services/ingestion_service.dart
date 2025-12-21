@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/exceptions/app_exception.dart';
 import '../core/models/guide.dart';
+import 'ai_service.dart';
 import 'base_service.dart';
+import 'guide_cache_service.dart';
 
 /// Input type detected from user input
 enum InputType {
@@ -75,6 +77,22 @@ class IngestionService extends BaseService {
   /// Create an IngestionService with optional Dio instance
   IngestionService({Dio? dio}) : _dio = dio ?? Dio();
 
+  /// AI service for intelligent parsing (optional)
+  AIService? _aiService;
+
+  /// Cache service for storing parsed guides (optional)
+  GuideCacheService? _cacheService;
+
+  /// Set the AI service for intelligent parsing
+  void setAiService(AIService? aiService) {
+    _aiService = aiService;
+  }
+
+  /// Set the cache service for storing parsed guides
+  void setCacheService(GuideCacheService? cacheService) {
+    _cacheService = cacheService;
+  }
+
   @override
   Future<void> onInitialize() async {
     // Configure Dio defaults
@@ -119,25 +137,58 @@ class IngestionService extends BaseService {
   /// Ingest a guide from a URL
   ///
   /// Fetches HTML content from the URL, then parses it into a Guide.
-  /// Currently uses basic parsing; will integrate Gemini AI in future.
+  /// Uses cache when available, AI parsing with fallback to regex.
   Future<Guide> ingestFromUrl(String url) async {
     // Validate URL
     if (!isUrl(url)) {
       throw IngestionException.invalidUrl(url);
     }
 
+    // Check cache first
+    if (_cacheService != null && _cacheService!.isInitialized) {
+      try {
+        final cached = await _cacheService!.getCachedGuide(url);
+        if (cached != null) {
+          return cached;
+        }
+      } catch (e) {
+        // Cache lookup failed, continue with fetch
+      }
+    }
+
     // Fetch HTML content
     final html = await _fetchHtml(url);
+    Guide guide;
 
-    // Parse HTML into Guide
-    // TODO: Integrate Gemini AI for intelligent parsing
-    return _parseHtmlToGuide(html, url);
+    // Use AI parsing if available
+    if (_aiService != null && _aiService!.isInitialized) {
+      try {
+        guide = await _aiService!.parseHtmlToGuide(html, url);
+      } catch (e) {
+        // Fall back to basic parsing on AI error
+        guide = _parseHtmlToGuideBasic(html, url);
+      }
+    } else {
+      // Basic parsing (fallback)
+      guide = _parseHtmlToGuideBasic(html, url);
+    }
+
+    // Cache the result
+    if (_cacheService != null && _cacheService!.isInitialized) {
+      try {
+        await _cacheService!.cacheGuide(guide, url);
+      } catch (e) {
+        // Cache save failed, continue without caching
+      }
+    }
+
+    return guide;
   }
 
   /// Ingest a guide from a text description
   ///
-  /// Creates a basic guide structure from natural language input.
-  /// Currently uses simple text analysis; will integrate Gemini AI in future.
+  /// Creates a structured guide from natural language input.
+  /// Uses AI parsing when available, falls back to basic parsing.
   Future<Guide> ingestFromText(String description) async {
     final trimmed = description.trim();
 
@@ -145,23 +196,37 @@ class IngestionService extends BaseService {
       throw IngestionException.noContent();
     }
 
-    // Detect category from keywords
-    final category = _detectCategory(trimmed);
+    // Use AI parsing if available
+    if (_aiService != null && _aiService!.isInitialized) {
+      try {
+        return await _aiService!.parseTextToGuide(trimmed);
+      } catch (e) {
+        // Fall back to basic parsing on AI error
+        return _parseTextToGuideBasic(trimmed);
+      }
+    }
 
-    // Create a basic guide from the description
-    // TODO: Integrate Gemini AI for intelligent guide generation
+    // Basic parsing (fallback)
+    return _parseTextToGuideBasic(trimmed);
+  }
+
+  /// Basic text-to-guide parsing (fallback when AI unavailable)
+  Guide _parseTextToGuideBasic(String description) {
+    // Detect category from keywords
+    final category = _detectCategory(description);
+
     final now = DateTime.now();
     final guideId = 'guide_${now.millisecondsSinceEpoch}';
 
     return Guide(
       guideId: guideId,
-      title: _generateTitle(trimmed),
+      title: _generateTitle(description),
       category: category,
       steps: [
         GuideStep(
           stepId: 1,
           title: 'Start',
-          instruction: trimmed,
+          instruction: description,
           successCriteria: 'Task completed as described',
         ),
       ],
@@ -200,23 +265,21 @@ class IngestionService extends BaseService {
 
       return data;
     } on DioException catch (e) {
-      throw IngestionException.fetchFailed(
-        url,
-        _mapDioError(e),
-      );
+      throw IngestionException.fetchFailed(url, _mapDioError(e));
     }
   }
 
-  /// Parse HTML content into a Guide
+  /// Basic HTML-to-guide parsing (fallback when AI unavailable)
   ///
-  /// This is a basic implementation that extracts title and looks for
-  /// list items as steps. Will be replaced with Gemini AI parsing.
-  Guide _parseHtmlToGuide(String html, String url) {
+  /// Extracts title and list items using regex. More limited than AI parsing.
+  Guide _parseHtmlToGuideBasic(String html, String url) {
     // Basic title extraction
     final titleMatch = RegExp(r'<title>([^<]+)</title>').firstMatch(html);
     final h1Match = RegExp(r'<h1[^>]*>([^<]+)</h1>').firstMatch(html);
     final title =
-        h1Match?.group(1)?.trim() ?? titleMatch?.group(1)?.trim() ?? 'Untitled Guide';
+        h1Match?.group(1)?.trim() ??
+        titleMatch?.group(1)?.trim() ??
+        'Untitled Guide';
 
     // Extract list items as potential steps
     final listItemRegex = RegExp(r'<li[^>]*>([^<]+)</li>');
@@ -228,10 +291,9 @@ class IngestionService extends BaseService {
         .toList();
 
     // If no list items, throw parsing error
-    // TODO: Replace with Gemini AI for intelligent extraction
     if (listItems.isEmpty) {
       throw IngestionException.parsingFailed(
-        'Could not find recipe steps on this page. AI parsing will be added soon.',
+        'Could not find recipe steps on this page. Try a different URL.',
       );
     }
 
@@ -274,7 +336,9 @@ class IngestionService extends BaseService {
       if (lower.contains(keyword)) diyScore++;
     }
 
-    return diyScore > culinaryScore ? GuideCategory.diy : GuideCategory.culinary;
+    return diyScore > culinaryScore
+        ? GuideCategory.diy
+        : GuideCategory.culinary;
   }
 
   /// Detect category from HTML content
@@ -288,7 +352,9 @@ class IngestionService extends BaseService {
     final trimmed = description.trim();
     if (trimmed.isEmpty) return 'New Task';
 
-    final title = trimmed.length > 50 ? '${trimmed.substring(0, 47)}...' : trimmed;
+    final title = trimmed.length > 50
+        ? '${trimmed.substring(0, 47)}...'
+        : trimmed;
 
     return title[0].toUpperCase() + title.substring(1);
   }

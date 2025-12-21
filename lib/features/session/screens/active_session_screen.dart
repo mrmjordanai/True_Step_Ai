@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/spacing.dart';
 import '../../../core/constants/typography.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../models/session_data.dart';
 import '../models/session_state.dart';
 import '../providers/session_provider.dart';
 import '../widgets/traffic_light_header_widget.dart';
@@ -22,6 +25,16 @@ class ActiveSessionScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(sessionProvider);
+
+    // Auto-navigate to completion when session is completed via verification
+    ref.listen<SessionData?>(sessionProvider, (previous, next) {
+      if (next != null &&
+          next.phase == SessionPhase.completed &&
+          previous?.phase != SessionPhase.completed) {
+        final summary = SessionSummary.fromSession(next);
+        context.go(AppRoutes.sessionComplete, extra: summary);
+      }
+    });
 
     if (session == null) {
       return const Scaffold(
@@ -319,10 +332,14 @@ class ActiveSessionScreen extends ConsumerWidget {
             ),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
-              ref.read(sessionProvider.notifier).cancelSession();
-              Navigator.of(context).pop(); // Exit session screen
+              final summary = await ref
+                  .read(sessionProvider.notifier)
+                  .completeSession();
+              if (context.mounted) {
+                context.go(AppRoutes.sessionComplete, extra: summary);
+              }
             },
             child: Text(
               'End Session',

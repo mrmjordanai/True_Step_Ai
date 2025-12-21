@@ -23,11 +23,7 @@ class AccountScreen extends ConsumerStatefulWidget {
   /// Optional callback when user taps Skip
   final VoidCallback? onSkip;
 
-  const AccountScreen({
-    super.key,
-    required this.onContinue,
-    this.onSkip,
-  });
+  const AccountScreen({super.key, required this.onContinue, this.onSkip});
 
   @override
   ConsumerState<AccountScreen> createState() => _AccountScreenState();
@@ -154,10 +150,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: TrueStepSpacing.xl),
 
           // Title
-          Text(
-            'Create Account',
-            style: TrueStepTypography.headline,
-          ),
+          Text('Create Account', style: TrueStepTypography.headline),
           const SizedBox(height: TrueStepSpacing.sm),
 
           // Subtitle
@@ -193,7 +186,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   // Divider
                   Row(
                     children: [
-                      const Expanded(child: Divider(color: TrueStepColors.glassBorder)),
+                      const Expanded(
+                        child: Divider(color: TrueStepColors.glassBorder),
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: TrueStepSpacing.md,
@@ -205,7 +200,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           ),
                         ),
                       ),
-                      const Expanded(child: Divider(color: TrueStepColors.glassBorder)),
+                      const Expanded(
+                        child: Divider(color: TrueStepColors.glassBorder),
+                      ),
                     ],
                   ),
                   const SizedBox(height: TrueStepSpacing.lg),
@@ -252,10 +249,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: TrueStepSpacing.md),
 
           // Title
-          Text(
-            'Sign up with Email',
-            style: TrueStepTypography.headline,
-          ),
+          Text('Sign up with Email', style: TrueStepTypography.headline),
           const SizedBox(height: TrueStepSpacing.xl),
 
           // Form
@@ -267,10 +261,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Email field
-                    Text(
-                      'Email',
-                      style: TrueStepTypography.bodyLarge,
-                    ),
+                    Text('Email', style: TrueStepTypography.bodyLarge),
                     const SizedBox(height: TrueStepSpacing.sm),
                     TextFormField(
                       controller: _emailController,
@@ -283,10 +274,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     const SizedBox(height: TrueStepSpacing.lg),
 
                     // Password field
-                    Text(
-                      'Password',
-                      style: TrueStepTypography.bodyLarge,
-                    ),
+                    Text('Password', style: TrueStepTypography.bodyLarge),
                     const SizedBox(height: TrueStepSpacing.sm),
                     TextFormField(
                       controller: _passwordController,
@@ -389,9 +377,8 @@ class _SocialButton extends StatelessWidget {
 class _LegalFooter extends StatelessWidget {
   const _LegalFooter();
 
-  // TODO: Replace with actual URLs when available
-  static const String _termsUrl = 'https://truestep.ai/terms';
-  static const String _privacyUrl = 'https://truestep.ai/privacy';
+  static const String _termsUrl = 'https://jordansco.com/terms';
+  static const String _privacyUrl = 'https://jordansco.com/privacy';
 
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);

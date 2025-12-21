@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.truestep.truestep"
-    compileSdk = 34
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

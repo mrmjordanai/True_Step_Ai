@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/routes.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/spacing.dart';
 import '../../../core/constants/typography.dart';
@@ -80,7 +82,7 @@ class ToolAuditScreen extends ConsumerWidget {
               Icons.arrow_back,
               color: TrueStepColors.textPrimary,
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.go(AppRoutes.sessionCalibration),
           ),
           Expanded(
             child: Column(
@@ -257,14 +259,7 @@ class ToolAuditScreen extends ConsumerWidget {
   }
 
   void _navigateToActiveSession(BuildContext context) {
-    // TODO: Implement navigation to Active Session screen
-    // For now, this is a placeholder - will be wired via GoRouter
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Starting session...'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+    context.go(AppRoutes.sessionActive);
   }
 }
 

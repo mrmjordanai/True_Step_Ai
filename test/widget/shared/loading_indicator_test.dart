@@ -8,9 +8,7 @@ import '../../helpers/pump_app.dart';
 void main() {
   group('LoadingIndicator', () {
     testWidgets('renders CircularProgressIndicator', (tester) async {
-      await tester.pumpCentered(
-        const LoadingIndicator(),
-      );
+      await tester.pumpCentered(const LoadingIndicator());
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
@@ -57,15 +55,15 @@ void main() {
     testWidgets('respects custom size', (tester) async {
       const customSize = 64.0;
 
-      await tester.pumpCentered(
-        const LoadingIndicator(size: customSize),
-      );
+      await tester.pumpCentered(const LoadingIndicator(size: customSize));
 
       final sizedBox = tester.widget<SizedBox>(
-        find.ancestor(
-          of: find.byType(CircularProgressIndicator),
-          matching: find.byType(SizedBox),
-        ).first,
+        find
+            .ancestor(
+              of: find.byType(CircularProgressIndicator),
+              matching: find.byType(SizedBox),
+            )
+            .first,
       );
 
       expect(sizedBox.width, equals(customSize));
@@ -73,39 +71,28 @@ void main() {
     });
 
     testWidgets('shows message text when provided', (tester) async {
-      await tester.pumpCentered(
-        const LoadingIndicator(message: 'Loading...'),
-      );
+      await tester.pumpCentered(const LoadingIndicator(message: 'Loading...'));
 
       expect(find.text('Loading...'), findsOneWidget);
     });
 
     testWidgets('hides message when not provided', (tester) async {
-      await tester.pumpCentered(
-        const LoadingIndicator(),
-      );
+      await tester.pumpCentered(const LoadingIndicator());
 
-      // Should not have any text widget for message
-      final textFinder = find.descendant(
-        of: find.byType(LoadingIndicator),
-        matching: find.byType(Text),
-      );
-
-      // May have text from theme, but not a message
-      // Just verify no "Loading..." text
+      // Just verify no "Loading..." text is shown
       expect(find.text('Loading...'), findsNothing);
     });
 
     testWidgets('default size is 48dp', (tester) async {
-      await tester.pumpCentered(
-        const LoadingIndicator(),
-      );
+      await tester.pumpCentered(const LoadingIndicator());
 
       final sizedBox = tester.widget<SizedBox>(
-        find.ancestor(
-          of: find.byType(CircularProgressIndicator),
-          matching: find.byType(SizedBox),
-        ).first,
+        find
+            .ancestor(
+              of: find.byType(CircularProgressIndicator),
+              matching: find.byType(SizedBox),
+            )
+            .first,
       );
 
       expect(sizedBox.width, equals(48.0));
@@ -113,9 +100,7 @@ void main() {
     });
 
     testWidgets('default state is green', (tester) async {
-      await tester.pumpCentered(
-        const LoadingIndicator(),
-      );
+      await tester.pumpCentered(const LoadingIndicator());
 
       final indicator = tester.widget<CircularProgressIndicator>(
         find.byType(CircularProgressIndicator),

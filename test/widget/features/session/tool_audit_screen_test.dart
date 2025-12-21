@@ -7,6 +7,16 @@ import 'package:truestep/features/session/models/session_state.dart';
 import 'package:truestep/features/session/providers/session_provider.dart';
 import 'package:truestep/features/session/screens/tool_audit_screen.dart';
 
+/// Test helper class to override Session with initial data
+class _TestSession extends Session {
+  final SessionData? _initialData;
+
+  _TestSession(this._initialData);
+
+  @override
+  SessionData? build() => _initialData;
+}
+
 void main() {
   late Guide testGuide;
 
@@ -44,11 +54,7 @@ void main() {
     return ProviderScope(
       overrides: [
         if (sessionData != null)
-          sessionProvider.overrideWith((ref) {
-            final notifier = SessionNotifier();
-            notifier.state = sessionData;
-            return notifier;
-          }),
+          sessionProvider.overrideWith(() => _TestSession(sessionData)),
       ],
       child: const MaterialApp(home: ToolAuditScreen()),
     );

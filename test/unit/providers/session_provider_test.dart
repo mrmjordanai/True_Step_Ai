@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:truestep/core/models/guide.dart';
 import 'package:truestep/features/session/models/session_data.dart';
@@ -262,12 +263,14 @@ void main() {
     });
   });
 
-  group('SessionNotifier', () {
-    late SessionNotifier notifier;
+  group('Session', () {
+    late ProviderContainer container;
+    late Session notifier;
     late Guide testGuide;
 
     setUp(() {
-      notifier = SessionNotifier();
+      container = ProviderContainer();
+      notifier = container.read(sessionProvider.notifier);
       testGuide = Guide(
         guideId: 'test-guide',
         title: 'Test Guide',
@@ -296,7 +299,7 @@ void main() {
     });
 
     tearDown(() {
-      notifier.dispose();
+      container.dispose();
     });
 
     test('initial state is null', () {
@@ -489,7 +492,7 @@ void main() {
       notifier.skipCalibration();
       notifier.confirmToolsReady();
 
-      final summary = notifier.completeSession();
+      final summary = await notifier.completeSession();
 
       expect(summary, isNotNull);
       expect(summary!.guide, testGuide);

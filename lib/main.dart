@@ -5,13 +5,19 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'app/app.dart';
+import 'core/utils/error_handler.dart';
+import 'core/utils/performance.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // Start profiling
+  startupProfiler.markStart();
 
-  // Set preferred orientations
-  await SystemChrome.setPreferredOrientations([
+  WidgetsFlutterBinding.ensureInitialized();
+  startupProfiler.markMilestone('Binding');
+
+  // Set preferred orientations (run in parallel with other init)
+  final orientationFuture = SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
@@ -26,17 +32,21 @@ Future<void> main() async {
     ),
   );
 
-  // Initialize Hive for local storage
-  await Hive.initFlutter();
+  // Initialize Hive and Firebase in parallel
+  await Future.wait([
+    orientationFuture,
+    Hive.initFlutter(),
+    Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
+  ]);
+  startupProfiler.markMilestone('Services');
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialize error handling (includes Crashlytics integration)
+  errorHandler.initialize();
 
-  runApp(
-    const ProviderScope(
-      child: TrueStepApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: TrueStepApp()));
+
+  // Mark startup complete after first frame
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    startupProfiler.markComplete();
+  });
 }

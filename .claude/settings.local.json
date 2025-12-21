@@ -33,7 +33,8 @@
       "Bash(flutterfire:*)",
       "Bash(xargs:*)",
       "Bash(flutter pub:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(flutter emulators:*)"
     ],
     "deny": [],
     "ask": []
